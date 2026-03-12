@@ -1,10 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import DayView from "@/app/components/calender/DayView"
 import WeekView from "@/app/components/calender/WeekView"
 import MonthView from "@/app/components/calender/MonthView"
+import UserMenu from "@/app/components/calender/UserMenu"
 import dayjs, { Dayjs } from "dayjs"
+
 
 export type Event = {
   id: number
@@ -24,11 +26,23 @@ const events: Event[] = [
 export default function SchedulePage() {
   const [mode, setMode] = useState<"day" | "week" | "month">("day")
   const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs())
+  const [session, setSession] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetch("http://localhost:8787/api/auth/session", {
+      credentials: "include",
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setSession(data)
+        setLoading(false)
+      })
+  }, [])
 
   return (
     <div className="min-h-screen bg-zinc-900 text-zinc-100 p-8">
       <div className="mx-auto max-w-7xl rounded-2xl border border-zinc-700 bg-zinc-800 shadow-xl">
-
         {/* header */}
         <div className="flex items-center justify-between border-b border-zinc-700 px-6 py-4">
 
@@ -52,20 +66,23 @@ export default function SchedulePage() {
             </div>
           </div>
 
-          <div className="flex rounded-lg border border-zinc-600 overflow-hidden text-sm">
-            {["day", "week", "month"].map((m) => (
-              <button
-                key={m}
-                onClick={() => setMode(m as any)}
-                className={`px-4 py-1 capitalize ${
-                  mode === m
-                    ? "bg-blue-600 text-white"
-                    : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"
-                }`}
-              >
-                {m}
-              </button>
-            ))}
+          <div className="flex items-center gap-4">
+            <div className="flex rounded-lg border border-zinc-600 overflow-hidden text-sm">
+              {["day", "week", "month"].map((m) => (
+                <button
+                  key={m}
+                  onClick={() => setMode(m as any)}
+                  className={`px-4 py-1 capitalize ${
+                    mode === m
+                      ? "bg-blue-600 text-white"
+                      : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"
+                  }`}
+                >
+                  {m}
+                </button>
+              ))}
+            </div>
+            <UserMenu session={session} />
           </div>
         </div>
 
@@ -81,6 +98,6 @@ export default function SchedulePage() {
             }}
            />}
       </div>
-    </div>
+    </div> 
   )
 }

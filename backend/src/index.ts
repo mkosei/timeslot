@@ -1,24 +1,38 @@
-import 'dotenv/config'
 import { Hono } from "hono";
-import { D1Database } from "../types/d1";
 import { initAuthConfig, authHandler, verifyAuth } from '@hono/auth-js';
 import Google from '@auth/core/providers/google'
 import { HTTPException } from 'hono/http-exception'
+import { cors } from "hono/cors"
 
 
 // ★D1 データベースの型定義
 type CloudflareBindings = {
   DB: D1Database;
+  AUTH_SECRET: string
+  AUTH_GOOGLE_ID: string
+  AUTH_GOOGLE_SECRET: string
 };
 
 const app = new Hono<{ Bindings: CloudflareBindings }>();
 
 app.use(
+  "*",
+  cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+  })
+)
+
+app.use(
   '*',
   initAuthConfig((c) => ({
     secret: c.env.AUTH_SECRET,
+    rustHost: true,
     providers: [
-      Google,
+      Google({
+        clientId: c.env.AUTH_GOOGLE_ID,
+        clientSecret: c.env.AUTH_GOOGLE_SECRET,
+      }),
     ],
   }))
 )
@@ -27,19 +41,22 @@ app.use('/api/auth/*', authHandler())
 
 app.use('*', verifyAuth())
 
-app.get("/", (c) => {
-  // ★env.DB で D1 にアクセス可能
-  const db = c.env.DB;
-  return c.text("Hello Hono!");
-});
-
 app.get('/events', async (c) => {
   try {
-    // D1 から全てのアイテムを取得
-    const { results } = await c.env.DB.prepare('SELECT * FROM events').all();
-    return c.json(results); // 取得したデータをJSONで返す
+    const auth = c.get("authUser")
+    const userId = auth?.token?.sub
+
+    if (!userId) {
+      return c.json({ error: "Unauthorized" }, 401)
+    }
+
+    const { results } = await c.env.DB
+      .prepare("SELECT * FROM events WHERE user_id = ?")
+      .bind(userId)
+      .all()
+    return c.json(results);
   } catch (error) {
-    // エラーハンドリングはonErrorミドルウェアが捕捉するが、個別のログ出力なども可能
+
     throw error; // onErrorミドルウェアに処理を委譲
   }
 });
