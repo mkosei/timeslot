@@ -17,7 +17,7 @@ export type Event = {
 }
 
 const events: Event[] = [
-  { id: 1, title: "面接１", candidate: "Yamada Taro", start: "10:00", end: "10:30", date: "2026-03-08" },
+  { id: 1, title: "面接１", candidate: "Yamada Taro", start: "10:00", end: "12:30", date: "2026-03-08" },
   { id: 2, title: "カジュアル面談", candidate: "Suzuki Hanako", start: "13:00", end: "13:30", date: "2026-03-12" },
 ]
 
