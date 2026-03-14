@@ -3,7 +3,8 @@ import { initAuthConfig, authHandler, verifyAuth } from '@hono/auth-js';
 import Google from '@auth/core/providers/google'
 import { HTTPException } from 'hono/http-exception'
 import { cors } from "hono/cors"
-
+import { ensureUser } from "./middleware/ensureUser";
+import bookingsRoute from "./routes/bookings"
 
 // ★D1 データベースの型定義
 type CloudflareBindings = {
@@ -41,25 +42,9 @@ app.use('/api/auth/*', authHandler())
 
 app.use('*', verifyAuth())
 
-app.get('/events', async (c) => {
-  try {
-    const auth = c.get("authUser")
-    const userId = auth?.token?.sub
+app.use("*", ensureUser)
 
-    if (!userId) {
-      return c.json({ error: "Unauthorized" }, 401)
-    }
-
-    const { results } = await c.env.DB
-      .prepare("SELECT * FROM events WHERE user_id = ?")
-      .bind(userId)
-      .all()
-    return c.json(results);
-  } catch (error) {
-
-    throw error; // onErrorミドルウェアに処理を委譲
-  }
-});
+app.route("/bookings", bookingsRoute)
 
 app.onError((err, c) => {
   console.error(err);
