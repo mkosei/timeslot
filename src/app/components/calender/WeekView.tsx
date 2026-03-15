@@ -90,7 +90,7 @@ export default function WeekView({ events, baseDate = dayjs() }: Props) {
                     {/* Tooltip */}
                     <div className="pointer-events-none absolute left-1/2 top-full z-20 mt-2 w-48 -translate-x-1/2 rounded-lg bg-zinc-900 p-3 text-xs opacity-0 shadow-xl transition group-hover:opacity-100 border border-zinc-700">
                       <div className="font-semibold">{event.title}</div>
-                      <div className="text-zinc-400">{event.candidate}</div>
+                      <div className="text-zinc-400">{event.guest_name}</div>
                       <div className="text-zinc-500">
                         {event.start} - {event.end}
                       </div>

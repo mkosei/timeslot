@@ -35,7 +35,7 @@ export default function MonthView({ events, onSelectDate }: Props) {
                 {/* ホバーツールチップ */}
                 <div className="pointer-events-none absolute left-1/2 top-full z-20 mt-1 w-40 -translate-x-1/2 rounded-lg bg-zinc-900 p-2 text-xs text-white opacity-0 shadow-lg transition group-hover:opacity-100 border border-zinc-700">
                   <div className="font-semibold">{e.title}</div>
-                  <div className="text-zinc-400">{e.candidate}</div>
+                  <div className="text-zinc-400">{e.guest_name}</div>
                   <div className="text-zinc-500">
                     {e.start} - {e.end}
                   </div>

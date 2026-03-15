@@ -21,7 +21,7 @@ export default function EventCard({
     </span>
 
     <span className="text-xs opacity-80">
-      {event.candidate}
+      {event.guest_name}
     </span>
 
     <span className="text-xs opacity-70">

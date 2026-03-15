@@ -7,38 +7,79 @@ import MonthView from "@/app/components/calender/MonthView"
 import UserMenu from "@/app/components/calender/UserMenu"
 import dayjs, { Dayjs } from "dayjs"
 
+type Session = {
+  user?: {
+    name?: string
+    email?: string
+  }
+}
+
+type BookingResponse = {
+  id: number
+  title: string
+  event_type_id: number
+  guest_name: string
+  guest_email: string
+  start: string
+  end: string
+  meet_url?: string
+}
 
 export type Event = {
   id: number
   title: string
-  candidate: string
+  guest_name: string
+  guest_email: string
   start: string
   end: string
   date: string
   url?: string
 }
 
-const events: Event[] = [
-  { id: 1, title: "面接１", candidate: "Yamada Taro", start: "10:00", end: "12:30", date: "2026-03-08" },
-  { id: 2, title: "カジュアル面談", candidate: "Suzuki Hanako", start: "13:00", end: "13:30", date: "2026-03-12" },
-]
-
 export default function SchedulePage() {
   const [mode, setMode] = useState<"day" | "week" | "month">("day")
   const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs())
   const [session, setSession] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [events, setEvents] = useState<Event[]>([])
 
   useEffect(() => {
-    fetch("http://localhost:8787/api/auth/session", {
-      credentials: "include",
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        setSession(data)
-        setLoading(false)
+  const load = async () => {
+    const sessionRes = await fetch(
+      "http://localhost:8787/api/auth/session",
+      { credentials: "include" }
+    )
+
+    const sessionData: Session = await sessionRes.json()
+    setSession(sessionData)
+
+    if (sessionData?.user) {
+      const res = await fetch("http://localhost:8787/bookings", {
+        credentials: "include",
       })
-  }, [])
+
+      const data = (await res.json()) as BookingResponse[]
+      console.log(data)
+
+      const formatted: Event[] = data.map((b: any) => ({
+        id: b.id,
+        title: b.title,
+        guest_name: b.guest_name,
+        guest_email: b.guest_email,
+        start: dayjs(b.start).format("HH:mm"),
+        end: dayjs(b.end).format("HH:mm"),
+        date: dayjs(b.start).format("YYYY-MM-DD"),
+        url: b.meet_url,
+      }))
+
+      setEvents(formatted)
+    }
+
+    setLoading(false)
+  }
+
+  load()
+}, [])
 
   return (
     <div className="min-h-screen bg-zinc-900 text-zinc-100 p-8">
