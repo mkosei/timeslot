@@ -1,21 +1,17 @@
--- Migration number: 0004 	 2026-03-14T14:26:11.601Z
+-- Migration number: 0005 	 2026-03-15T13:13:28.180Z
+
+-- =========================================
+-- テーブルを丸ごとリセット
+-- =========================================
+DROP TABLE IF EXISTS bookings;
+DROP TABLE IF EXISTS availability;
+DROP TABLE IF EXISTS users;
+
 CREATE TABLE IF NOT EXISTS users (
     id TEXT PRIMARY KEY,    -- UUID を保存
     name TEXT NOT NULL,
     email TEXT NOT NULL,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP
-);
--- これ消去
-CREATE TABLE IF NOT EXISTS event_types (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  user_id TEXT NOT NULL,
-  title TEXT NOT NULL,
-  slug TEXT NOT NULL,
-  duration INTEGER NOT NULL, -- 分
-  description TEXT,
-  created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 -- 空き時間
@@ -33,9 +29,9 @@ CREATE TABLE IF NOT EXISTS availability (
 -- 予約
 CREATE TABLE IF NOT EXISTS bookings (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  event_type_id INTEGER NOT NULL,
+  user_id TEXT NOT NULL,
 
-  guest_name TEXT,
+  guest_name TEXT NOT NULL,
   guest_email TEXT NOT NULL,
 
   start TEXT NOT NULL,
@@ -44,8 +40,8 @@ CREATE TABLE IF NOT EXISTS bookings (
   meet_url TEXT,
 
   created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-
-  FOREIGN KEY (event_type_id) REFERENCES event_types(id) ON DELETE CASCADE
+  
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 -- =========================================
@@ -56,15 +52,6 @@ CREATE TABLE IF NOT EXISTS bookings (
 INSERT INTO users (id, name, email) VALUES
 ('user_001', '山田 太郎', 'taro@example.com'),
 ('user_002', '佐藤 花子', 'hanako@example.com');
-
---　これを消去（typeは使わず空き時間に予定を入れるだけに）
--- =========================================
--- event_types（予約リンクの種類）
--- =========================================
-INSERT INTO event_types (user_id, title, slug, duration, description) VALUES
-('user_001', '30分ミーティング', '30min-meeting', 30, '簡単な打ち合わせ用のミーティングです'),
-('user_001', '1時間ミーティング', '60min-meeting', 60, '詳細な打ち合わせ用のミーティングです'),
-('user_002', 'カジュアル面談', 'casual-talk', 30, 'カジュアルな面談です');
 
 -- =========================================
 -- availability（空き時間）
@@ -88,7 +75,7 @@ INSERT INTO availability (user_id, weekday, start_time, end_time) VALUES
 -- bookings（実際の予約）
 -- =========================================
 INSERT INTO bookings (
-  event_type_id,
+  user_id,
   guest_name,
   guest_email,
   start,
@@ -96,15 +83,15 @@ INSERT INTO bookings (
   meet_url
 ) VALUES
 (
-  1,
-  '鈴木 一郎',
-  'ichiro@example.com',
+  'user_001',     
+  '鈴木 一郎',   
+  'ichiro@example.com', 
   '2026-03-16T10:00:00',
   '2026-03-16T10:30:00',
   'https://meet.google.com/test-meet-1'
 ),
 (
-  2,
+  'user_001',
   '田中 美咲',
   'misaki@example.com',
   '2026-03-16T14:00:00',
@@ -112,11 +99,10 @@ INSERT INTO bookings (
   'https://meet.google.com/test-meet-2'
 ),
 (
-  3,
+  'user_002',
   '中村 健',
   'ken@example.com',
   '2026-03-18T11:00:00',
   '2026-03-18T11:30:00',
   'https://meet.google.com/test-meet-3'
 );
-
