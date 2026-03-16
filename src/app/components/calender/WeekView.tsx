@@ -1,6 +1,6 @@
 "use client"
 
-import { Event } from "@/app/schedule/page"
+import { Event } from "@/app/types/type"
 import dayjs, { Dayjs } from "dayjs"
 
 const hours = Array.from({ length: 24 }, (_, i) => (i + 8) % 24)

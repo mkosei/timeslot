@@ -1,5 +1,5 @@
 import dayjs, { Dayjs } from "dayjs"
-import { Event } from "@/app/schedule/page"
+import { Event } from "@/app/types/type"
 
 type Props = {
   events: Event[]

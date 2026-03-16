@@ -1,4 +1,4 @@
-import { Event } from "@/app/schedule/page"
+import { Event } from "@/app/types/type"
 import EventCard from "./EventCard"
 import dayjs, { Dayjs } from "dayjs"
 

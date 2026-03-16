@@ -1,4 +1,4 @@
-import { Event } from "@/app/schedule/page"
+import { Event } from "@/app/types/type"
 
 export default function EventCard({
   event,
