@@ -31,8 +31,8 @@ CREATE TABLE IF NOT EXISTS bookings (
   user_id TEXT NOT NULL,
 
   title TEXT NOT NULL,
-  guest_name TEXT NOT NULL,
-  guest_email TEXT NOT NULL,
+  guest_name TEXT NOT NULL, --ここNULL許容するか
+  guest_email TEXT NOT NULL, --ここも
 
   start TEXT NOT NULL,
   end TEXT NOT NULL,
