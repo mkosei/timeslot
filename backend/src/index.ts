@@ -14,7 +14,7 @@ type CloudflareBindings = {
   AUTH_GOOGLE_SECRET: string
 };
 
-const app = new Hono<{ Bindings: CloudflareBindings }>();
+export const app = new Hono<{ Bindings: CloudflareBindings }>();
 
 app.use(
   "*",
@@ -44,7 +44,11 @@ app.use('*', verifyAuth())
 
 app.use("*", ensureUser)
 
-app.route("/bookings", bookingsRoute)
+app.get("/", (c) => {
+  return c.redirect("http://localhost:3000/schedule")
+})
+
+app.route("/api/bookings", bookingsRoute)
 
 app.onError((err, c) => {
   console.error(err);

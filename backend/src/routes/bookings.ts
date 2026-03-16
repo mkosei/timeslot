@@ -1,8 +1,9 @@
 import { Hono } from "hono"
-import { getBookings } from "../services/bookingService"
+import { fetchBookings, createBooking } from "../services/bookingService"
 
 const app = new Hono()
 
-app.get("/", getBookings)
+app.get("/", fetchBookings)
+app.post("/", createBooking)
 
 export default app
