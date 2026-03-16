@@ -1,40 +1,15 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import DayView from "@/app/components/calender/DayView"
 import WeekView from "@/app/components/calender/WeekView"
 import MonthView from "@/app/components/calender/MonthView"
 import UserMenu from "@/app/components/calender/UserMenu"
+import BookingModal from "@/app/components/booking/BookingModal"
 import dayjs, { Dayjs } from "dayjs"
-
-type Session = {
-  user?: {
-    name?: string
-    email?: string
-  }
-}
-
-type BookingResponse = {
-  id: number
-  title: string
-  event_type_id: number
-  guest_name: string
-  guest_email: string
-  start: string
-  end: string
-  meet_url?: string
-}
-
-export type Event = {
-  id: number
-  title: string
-  guest_name: string
-  guest_email: string
-  start: string
-  end: string
-  date: string
-  url?: string
-}
+import { fetchBookings } from "../services/bookingService"
+import { fetchSession } from "../services/authService"
+import type { BookingResponse, Event } from "../types/type"
 
 export default function SchedulePage() {
   const [mode, setMode] = useState<"day" | "week" | "month">("day")
@@ -42,44 +17,47 @@ export default function SchedulePage() {
   const [session, setSession] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [events, setEvents] = useState<Event[]>([])
+  const [bookingModalOpen, setBookingModalOpen] = useState(false)
 
-  useEffect(() => {
-  const load = async () => {
-    const sessionRes = await fetch(
-      "http://localhost:8787/api/auth/session",
-      { credentials: "include" }
-    )
-
-    const sessionData: Session = await sessionRes.json()
-    setSession(sessionData)
-
-    if (sessionData?.user) {
-      const res = await fetch("http://localhost:8787/bookings", {
-        credentials: "include",
-      })
-
-      const data = (await res.json()) as BookingResponse[]
-      console.log(data)
-
-      const formatted: Event[] = data.map((b: any) => ({
-        id: b.id,
-        title: b.title,
-        guest_name: b.guest_name,
-        guest_email: b.guest_email,
-        start: dayjs(b.start).format("HH:mm"),
-        end: dayjs(b.end).format("HH:mm"),
-        date: dayjs(b.start).format("YYYY-MM-DD"),
-        url: b.meet_url,
-      }))
-
-      setEvents(formatted)
-    }
-
-    setLoading(false)
+  function formatBookings(data: BookingResponse[]): Event[] {
+    return data.map((b) => ({
+      id: b.id,
+      user_id: b.user_id,
+      title: b.title,
+      guest_name: b.guest_name,
+      guest_email: b.guest_email,
+      start: dayjs(b.start).format("HH:mm"),
+      end: dayjs(b.end).format("HH:mm"),
+      date: dayjs(b.start).format("YYYY-MM-DD"),
+      url: b.meet_url,
+    }))
   }
 
-  load()
-}, [])
+  const load = useCallback(async () => {
+    try {
+      setLoading(true)
+
+      const [sessionData, bookingsData] = await Promise.all([
+        fetchSession(),
+        fetchBookings()
+      ])
+
+      setSession(sessionData)
+
+      if (sessionData?.user) {
+        setEvents(formatBookings(bookingsData))
+      }
+
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    load()
+  }, [load])
 
   return (
     <div className="min-h-screen bg-zinc-900 text-zinc-100 p-8">
@@ -108,6 +86,23 @@ export default function SchedulePage() {
           </div>
 
           <div className="flex items-center gap-4">
+
+            <button
+              className="flex rounded-lg bg-blue-600 hover:bg-blue-500 text-white px-2 py-1 rounded shadow"
+              onClick={() => {
+                alert("リンクを作成")
+              }}
+            >
+              予約リンクを作成
+            </button>
+
+            <button
+              className="flex rounded-lg bg-blue-600 hover:bg-blue-500 text-white px-2 py-1 shadow"
+              onClick={() => setBookingModalOpen(true)}
+            >
+              予定を追加
+            </button>
+
             <div className="flex rounded-lg border border-zinc-600 overflow-hidden text-sm">
               {["day", "week", "month"].map((m) => (
                 <button
@@ -127,6 +122,7 @@ export default function SchedulePage() {
           </div>
         </div>
 
+
         {/* View切り替え */}
         {mode === "day" && <DayView events={events} selectedDate={selectedDate} />}
         {mode === "week" && <WeekView events={events} baseDate={selectedDate} />}
@@ -139,6 +135,14 @@ export default function SchedulePage() {
             }}
            />}
       </div>
+      <BookingModal
+        open={bookingModalOpen}
+        onClose={() => setBookingModalOpen(false)}
+        onBooked={() => {
+          setBookingModalOpen(false)
+          load();
+        }}
+      />
     </div> 
   )
 }

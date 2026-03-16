@@ -18,8 +18,7 @@ export default function UserMenu({ session }: { session: any }) {
   }, [])
 
   const logout = () => {
-    window.location.href =
-      "http://localhost:8787/api/auth/signout?callbackUrl=http://localhost:3000"
+    window.location.href = "http://localhost:8787/api/auth/signout"
   }
 
   if (!session?.user) {
