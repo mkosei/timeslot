@@ -16,6 +16,17 @@ export type BookingResponse = {
   meet_url?: string
 }
 
+
+export type BookingPayload = {
+  title: string
+  guest_name: string
+  guest_email: string
+  start: string
+  end: string
+  meet_url?: string
+}
+
+
 export type Event = {
   id: number
   user_id: string
