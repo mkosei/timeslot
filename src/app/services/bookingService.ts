@@ -1,4 +1,4 @@
-import type { BookingResponse } from "../types/type"
+import type { BookingResponse, BookingPayload } from "../types/type"
 
 export async function fetchBookings(): Promise<BookingResponse[]> {
   const res = await fetch("http://localhost:8787/api/bookings", {
@@ -13,21 +13,14 @@ export async function fetchBookings(): Promise<BookingResponse[]> {
 }
 
 
-export async function createBooking(data: {
-  title: string
-  guest_name: string
-  guest_email: string
-  start: string
-  end: string
-  meet_url?: string
-}) {
+export async function createBooking(payload: BookingPayload) {
   const res = await fetch("http://localhost:8787/api/bookings", {
     method: "POST",
     credentials: "include",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(data),
+    body: JSON.stringify(payload),
   })
 
   if (!res.ok) {
@@ -36,3 +29,24 @@ export async function createBooking(data: {
 
   return res.json()
 }
+
+export async function updateBooking(id: number, payload: BookingPayload) {
+  const res = await fetch(`http://localhost:8787/api/bookings/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify(payload),
+  })
+  if (!res.ok) throw new Error("予約の更新に失敗しました")
+  return res.json()
+}
+
+export async function deleteBooking(id: number) {
+  const res = await fetch(`http://localhost:8787/api/bookings/${id}`, {
+    method: "DELETE",
+    credentials: "include",
+  })
+  if (!res.ok) throw new Error("予約の削除に失敗しました")
+  return res.json()
+}
+
