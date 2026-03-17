@@ -10,6 +10,7 @@ import dayjs, { Dayjs } from "dayjs"
 import { fetchBookings } from "../services/bookingService"
 import { fetchSession } from "../services/authService"
 import type { BookingResponse, Event } from "../types/type"
+import EventModal from "../components/booking/EventDetailModal"
 
 export default function SchedulePage() {
   const [mode, setMode] = useState<"day" | "week" | "month">("day")
@@ -18,6 +19,7 @@ export default function SchedulePage() {
   const [loading, setLoading] = useState(true)
   const [events, setEvents] = useState<Event[]>([])
   const [bookingModalOpen, setBookingModalOpen] = useState(false)
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null)
 
   function formatBookings(data: BookingResponse[]): Event[] {
     return data.map((b) => ({
@@ -66,7 +68,7 @@ export default function SchedulePage() {
         <div className="flex items-center justify-between border-b border-zinc-700 px-6 py-4">
 
           <div className="flex flex-col gap-1">
-            <h1 className="text-lg font-semibold">Schedule</h1>
+            <h1 className="text-lg font-semibold">TimeSlot</h1>
             
             {/* 日付表示 */}
             <div className="flex items-center gap-2 text-sm text-zinc-400">
@@ -124,8 +126,20 @@ export default function SchedulePage() {
 
 
         {/* View切り替え */}
-        {mode === "day" && <DayView events={events} selectedDate={selectedDate} />}
-        {mode === "week" && <WeekView events={events} baseDate={selectedDate} />}
+        {mode === "day" && 
+          <DayView
+            events={events}
+            selectedDate={selectedDate}
+            onSelectEvent={setSelectedEvent}
+          />
+        }
+        {mode === "week" && 
+        <WeekView 
+          events={events} 
+          baseDate={selectedDate} 
+          onSelectEvent={setSelectedEvent}
+        />
+        }
         {mode === "month" &&           
           <MonthView
             events={events}
@@ -142,6 +156,12 @@ export default function SchedulePage() {
           setBookingModalOpen(false)
           load();
         }}
+      />
+      <EventModal
+        event={selectedEvent}
+        open={!!selectedEvent}
+        onClose={() => setSelectedEvent(null)}
+        onUpdated={load}
       />
     </div> 
   )
