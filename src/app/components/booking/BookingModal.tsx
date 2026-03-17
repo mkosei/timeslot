@@ -72,7 +72,7 @@ export default function BookingModal({ open, onClose, onBooked }: Props) {
         <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-700">
 
           <h2 className="text-lg font-semibold text-white">
-            予約を作成
+            予定を作成
           </h2>
 
           <button
@@ -185,7 +185,7 @@ export default function BookingModal({ open, onClose, onBooked }: Props) {
             onClick={handleSubmit}
             disabled={loading}
           >
-            {loading ? "予約中..." : "予約を作成"}
+            {loading ? "予約中..." : "予定を作成"}
           </button>
 
         </div>
