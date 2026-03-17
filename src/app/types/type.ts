@@ -38,3 +38,17 @@ export type Event = {
   date: string
   url?: string
 }
+
+export type FormState = {
+  title: string
+  guest_name: string
+  guest_email: string
+  date: string
+  start: string
+  end: string
+  url: string
+}
+
+export type CreateLinkResponse = {
+  slug: string
+}
