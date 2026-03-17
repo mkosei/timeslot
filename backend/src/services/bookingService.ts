@@ -1,47 +1,34 @@
 import { Context } from "hono"
 
-export const fetchBookings = async (c: Context<{ Bindings: CloudflareBindings }>) => {
-  const auth = c.get("authUser")
-  const user = auth?.token
+  export const fetchBookings = async (c: Context<{ Bindings: CloudflareBindings }>) => {
+    const auth = c.get("authUser")
+    const user = auth?.token
 
-  if (!user) {
-    return c.json({ error: "Unauthorized" }, 401)
+    if (!user) {
+      return c.json({ error: "Unauthorized" }, 401)
+    }
+
+    const userId = user.sub
+
+    const { results } = await c.env.DB
+      .prepare(`
+        SELECT 
+          id,
+          user_id,
+          title,
+          guest_name,
+          guest_email,
+          start,
+          end,
+          meet_url
+        FROM bookings
+        WHERE user_id = ?
+      `)
+      .bind(userId)
+      .all()
+
+    return c.json(results)
   }
-
-  const userId = user.sub
-
-  const { results } = await c.env.DB
-    .prepare(`
-      SELECT 
-        id,
-        user_id,
-        title,
-        guest_name,
-        guest_email,
-        start,
-        end,
-        meet_url
-      FROM bookings
-    `)
-    .all()
-
-  return c.json(results)
-}
-
-  // const { results } = await c.env.DB
-  //   .prepare(`
-  //     SELECT 
-  //       id,
-  //       user_id,
-  //       guest_name,
-  //       start,
-  //       end,
-  //       meet_url
-  //     FROM bookings
-  //     WHERE user_id = ?
-  //   `)
-  //   .bind(userId)
-  //   .all()
 
   export const createBooking = async (c: Context<{ Bindings: CloudflareBindings }>) => {
     try {
@@ -71,5 +58,75 @@ export const fetchBookings = async (c: Context<{ Bindings: CloudflareBindings }>
       }, 201); 
     } catch (error) {
       throw error
+    }
+  }
+
+  export const updateBooking = async (c: Context<{ Bindings: CloudflareBindings }>) => {
+    try {
+      const id = c.req.param("id")
+      const body = await c.req.json()
+
+      const {
+        title,
+        guest_name,
+        guest_email,
+        start,
+        end,
+        meet_url
+      } = body as {
+        title: string
+        guest_name: string
+        guest_email: string
+        start: string
+        end: string
+        meet_url?: string
+      }
+
+      if (!id) {
+        return c.json({ error: "id required" }, 400)
+      }
+
+      await c.env.DB.prepare(`
+        UPDATE bookings
+        SET
+          title = ?,
+          guest_name = ?,
+          guest_email = ?,
+          start = ?,
+          end = ?,
+          meet_url = ?
+        WHERE id = ?
+      `)
+        .bind(title, guest_name, guest_email, start, end, meet_url ?? null, id)
+        .run()
+
+      return c.json({ success: true })
+
+    } catch (err) {
+      console.error(err)
+      return c.json({ error: "update failed" }, 500)
+    }
+  }
+
+  export const deleteBooking = async (c: Context<{ Bindings: CloudflareBindings }>) => {
+    try {
+      const id = c.req.param("id")
+
+      if (!id) {
+        return c.json({ error: "id required" }, 400)
+      }
+
+      await c.env.DB.prepare(`
+        DELETE FROM bookings
+        WHERE id = ?
+      `)
+        .bind(id)
+        .run()
+
+      return c.json({ success: true })
+
+    } catch (err) {
+      console.error(err)
+      return c.json({ error: "delete failed" }, 500)
     }
   }
