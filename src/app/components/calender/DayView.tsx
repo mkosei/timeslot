@@ -7,16 +7,22 @@ const hours = Array.from({ length: 24 }, (_, i) => (i + 8) % 24)
 type Props = {
   events: Event[]
   selectedDate: Dayjs
+  onSelectEvent: (event: Event) => void
 }
 
-export default function DayView({ events, selectedDate }: Props) {
-  // 日付単位でフィルター
+export default function DayView({
+  events,
+  selectedDate,
+  onSelectEvent,
+}: Props) {
+
   const dayEvents = events.filter(
     (e) => e.date === selectedDate.format("YYYY-MM-DD")
   )
 
   return (
     <div className="grid grid-cols-[70px_1fr] min-h-screen">
+      
       {/* 時間軸 */}
       <div className="border-r border-zinc-700 bg-zinc-800">
         {hours.map((hour) => (
@@ -31,6 +37,7 @@ export default function DayView({ events, selectedDate }: Props) {
 
       {/* カレンダー */}
       <div className="relative flex-1 bg-zinc-800">
+
         {hours.map((h) => (
           <div key={h} className="h-20" />
         ))}
@@ -41,6 +48,7 @@ export default function DayView({ events, selectedDate }: Props) {
 
           const adjustedStart = startHour >= 8 ? startHour - 8 : startHour + 16
           const top = adjustedStart * 80 + (startMin / 60) * 80
+
           const height =
             ((endHour - startHour) * 60 + (endMin - startMin)) / 60 * 80
 
@@ -50,6 +58,7 @@ export default function DayView({ events, selectedDate }: Props) {
               event={event}
               top={top}
               height={height}
+              onSelect={onSelectEvent}
             />
           )
         })}

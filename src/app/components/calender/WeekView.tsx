@@ -7,11 +7,16 @@ const hours = Array.from({ length: 24 }, (_, i) => (i + 8) % 24)
 
 type Props = {
   events: Event[]
-  baseDate?: Dayjs // 任意で週の基準日を渡せる
+  baseDate?: Dayjs
+  onSelectEvent: (event: Event) => void
 }
 
-export default function WeekView({ events, baseDate = dayjs() }: Props) {
-  // baseDate の週の日曜日を起点に7日分生成
+export default function WeekView({
+  events,
+  baseDate = dayjs(),
+  onSelectEvent,
+}: Props) {
+
   const week = Array.from({ length: 7 }, (_, i) =>
     baseDate.startOf("week").add(i, "day")
   )
@@ -20,24 +25,25 @@ export default function WeekView({ events, baseDate = dayjs() }: Props) {
     <div className="overflow-x-auto">
       {/* Week Header */}
       <div className="grid grid-cols-[70px_repeat(7,1fr)] bg-zinc-800">
-        <div /> {/* 左上の空白 */}
+        <div />
         {week.map((day, i) => (
           <div
             key={i}
-            className="py-3 text-center border-l border-zinc-700 last:border-r-0"
+            className="py-3 text-center border-l border-zinc-700"
           >
             <div className="text-sm font-semibold text-zinc-200">
-              {day.format("ddd")} {/* 曜日 */}
+              {day.format("ddd")}
             </div>
             <div className="text-xs text-zinc-400">
-              {day.format("MM/DD")} {/* 日付 */}
+              {day.format("MM/DD")}
             </div>
           </div>
         ))}
       </div>
 
-      {/* Calendar Grid */}
+      {/* Grid */}
       <div className="grid grid-cols-[70px_repeat(7,1fr)]">
+
         {/* Time column */}
         <div className="border-r border-zinc-700 bg-zinc-850">
           {hours.map((hour) => (
@@ -54,23 +60,22 @@ export default function WeekView({ events, baseDate = dayjs() }: Props) {
         {week.map((day, dayIndex) => (
           <div
             key={dayIndex}
-            className="relative border-l border-zinc-700 last:border-r-0"
+            className="relative border-l border-zinc-700"
           >
-            {/* Grid lines */}
+
             {hours.map((hour) => (
               <div key={hour} className="h-20" />
             ))}
 
-            {/* Events */}
             {events
-              .filter((e) => dayjs(e.date).isSame(day, "day")) // 日付ベースでフィルタ
+              .filter((e) => dayjs(e.date).isSame(day, "day"))
               .map((event) => {
+
                 const startHour = parseInt(event.start.split(":")[0])
                 const startMin = parseInt(event.start.split(":")[1])
                 const endHour = parseInt(event.end.split(":")[0])
                 const endMin = parseInt(event.end.split(":")[1])
 
-                // 8:00 〜 翌8:00 に合わせて調整
                 const adjustedStart = startHour >= 8 ? startHour - 8 : startHour + 16
                 const top = adjustedStart * 80 + (startMin / 60) * 80
 
@@ -82,6 +87,7 @@ export default function WeekView({ events, baseDate = dayjs() }: Props) {
                     key={event.id}
                     className="group absolute left-2 right-2 rounded-xl bg-blue-600 p-2 text-white shadow hover:bg-blue-500 transition cursor-pointer"
                     style={{ top, height }}
+                    onClick={() => onSelectEvent(event)}
                   >
                     <div className="text-sm font-semibold truncate">
                       {event.title}
