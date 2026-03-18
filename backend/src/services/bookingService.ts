@@ -35,7 +35,7 @@ import { Context } from "hono"
       const auth = c.get("authUser")
       const userId = auth?.token?.sub
       const { title, guest_name, guest_email, start, end, meet_url} = await c.req.json();
-      if ( !userId || !title || !guest_email || !start || !end ) {
+      if ( !userId || !title || !start || !end ) {
           return c.json({ message: "Data is insufficient" }, 400); 
       }
 
