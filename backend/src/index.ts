@@ -40,10 +40,6 @@ app.use(
 
 app.use('/api/auth/*', authHandler())
 
-app.use('*', verifyAuth())
-
-app.use("*", ensureUser)
-
 app.get("/", (c) => {
   return c.redirect("http://localhost:3000/schedule")
 })
