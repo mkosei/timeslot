@@ -11,6 +11,8 @@ import { fetchBookings } from "../services/bookingService"
 import { fetchSession } from "../services/authService"
 import type { BookingResponse, Event } from "../types/type"
 import EventModal from "../components/booking/EventDetailModal"
+import CreateLinkModal from "../components/booking/BookingLinkModal"
+
 
 export default function SchedulePage() {
   const [mode, setMode] = useState<"day" | "week" | "month">("day")
@@ -19,6 +21,7 @@ export default function SchedulePage() {
   const [loading, setLoading] = useState(true)
   const [events, setEvents] = useState<Event[]>([])
   const [bookingModalOpen, setBookingModalOpen] = useState(false)
+  const [linkModalOpen, setLinkModalOpen] = useState(false)
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null)
 
   function formatBookings(data: BookingResponse[]): Event[] {
@@ -91,9 +94,7 @@ export default function SchedulePage() {
 
             <button
               className="flex rounded-lg bg-blue-600 hover:bg-blue-500 text-white px-2 py-1 rounded shadow"
-              onClick={() => {
-                alert("リンクを作成")
-              }}
+              onClick={() => setLinkModalOpen(true)}
             >
               予約リンクを作成
             </button>
@@ -156,6 +157,10 @@ export default function SchedulePage() {
           setBookingModalOpen(false)
           load();
         }}
+      />
+      <CreateLinkModal
+        open={linkModalOpen}
+        onClose={() => setLinkModalOpen(false)}
       />
       <EventModal
         event={selectedEvent}

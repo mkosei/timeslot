@@ -9,6 +9,7 @@ type Slot = {
 }
 
 type BookingResponse = {
+  title: string
   slots: Slot[]
 }
 
@@ -20,7 +21,7 @@ export default function BookingPage({
   const [slots, setSlots] = useState<Slot[]>([])
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null)
-
+  const [title, setTitle] = useState("")
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [loading, setLoading] = useState(false)
@@ -28,24 +29,22 @@ export default function BookingPage({
 
   const { slug } = use(params)
 
-  // ① slots取得
-    useEffect(() => {
+  // slots取得
+  useEffect(() => {
     const fetchSlots = async () => {
-        const res = await fetch(
+      const res = await fetch(
         `http://localhost:8787/api/bookings/${slug}`
-        )
+      )
+      const data = (await res.json()) as BookingResponse
 
-        const text = await res.text()
-        console.log(text)
-        const data = (await res.json()) as BookingResponse
-
-        setSlots(data.slots)
+      setSlots(data.slots)
+      setTitle(data.title)
     }
 
     fetchSlots()
-    }, [slug])
+  }, [slug])
 
-  // 日付一覧生成
+  // 日付一覧
   const dates = Array.from(
     new Set(slots.map((s) => dayjs(s.start).format("YYYY-MM-DD")))
   )
@@ -69,6 +68,7 @@ export default function BookingPage({
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
+          title: title,
           start: selectedSlot.start,
           end: selectedSlot.end,
           guest_name: name,
@@ -84,7 +84,7 @@ export default function BookingPage({
     }
   }
 
-  // 🎉 完了画面
+  // 完了画面
   if (done) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-zinc-900 text-white">
@@ -102,20 +102,20 @@ export default function BookingPage({
 
   return (
     <div className="min-h-screen bg-zinc-900 text-white flex justify-center items-center p-6">
-      <div className="bg-zinc-800 rounded-2xl shadow-xl w-full max-w-3xl p-6">
+      <div className="bg-zinc-800 rounded-2xl shadow-xl w-full max-w-4xl p-6">
 
         {/* タイトル */}
         <h1 className="text-xl font-semibold mb-6">
-          予約を選択
+          {title}の予約
         </h1>
 
-        <div className="grid grid-cols-3 gap-6">
+        <div className="grid grid-cols-3 gap-6 h-[420px]">
 
-          {/* ① 日付 */}
-          <div>
+          {/* 日付 */}
+          <div className="flex flex-col">
             <h3 className="text-sm text-zinc-400 mb-2">日付</h3>
 
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2 overflow-y-auto pr-1">
               {dates.map((d) => (
                 <button
                   key={d}
@@ -126,7 +126,7 @@ export default function BookingPage({
                   className={`px-3 py-2 rounded text-sm text-left transition
                   ${
                     selectedDate === d
-                      ? "bg-blue-600"
+                      ? "bg-blue-600 shadow-md"
                       : "bg-zinc-700 hover:bg-zinc-600"
                   }`}
                 >
@@ -136,8 +136,8 @@ export default function BookingPage({
             </div>
           </div>
 
-          {/* ② 時間 */}
-          <div>
+          {/* 時間 */}
+          <div className="flex flex-col">
             <h3 className="text-sm text-zinc-400 mb-2">時間</h3>
 
             {!selectedDate && (
@@ -146,15 +146,15 @@ export default function BookingPage({
               </p>
             )}
 
-            <div className="flex flex-col gap-2">
+            <div className="grid grid-cols-2 gap-2 overflow-y-auto pr-1">
               {filteredSlots.map((s) => (
                 <button
                   key={s.start}
                   onClick={() => setSelectedSlot(s)}
-                  className={`px-3 py-2 rounded text-sm transition
+                  className={`px-3 py-2 rounded text-sm transition text-center
                   ${
                     selectedSlot?.start === s.start
-                      ? "bg-green-600"
+                      ? "bg-green-600 shadow-md"
                       : "bg-zinc-700 hover:bg-zinc-600"
                   }`}
                 >
@@ -164,14 +164,14 @@ export default function BookingPage({
             </div>
           </div>
 
-          {/* ③ フォーム */}
-          <div>
+          {/* フォーム */}
+          <div className="flex flex-col">
             <h3 className="text-sm text-zinc-400 mb-2">
               あなたの情報
             </h3>
 
             {!selectedSlot && (
-              <p className="text-zinc-500 text-sm">
+              <p className="text-zinc-500 text-sm mb-2">
                 時間を選択
               </p>
             )}
