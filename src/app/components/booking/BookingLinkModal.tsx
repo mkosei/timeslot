@@ -151,15 +151,17 @@ const handleCreate = async () => {
             <label className="text-sm text-zinc-400">
               何日先まで表示
             </label>
-            <input
-              type="number"
+            <select
               value={days}
-              onChange={(e) => {
-                setDays(Number(e.target.value))
-                setErrors((prev) => ({ ...prev, days: undefined }))
-              }}
+              onChange={(e) => setDays(Number(e.target.value))}
               className="w-full mt-1 bg-zinc-800 p-2 rounded"
-            />
+            >
+              <option value={7}>7日</option>
+              <option value={14}>14日</option>
+              <option value={30}>30日</option>
+              <option value={60}>60日</option>
+              <option value={90}>90日</option>
+            </select>
             {errors.days && (
               <p className="text-zinc-400 text-xs mt-1">{errors.days}</p>
             )}
