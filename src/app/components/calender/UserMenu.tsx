@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
+import { login, logout } from "@/app/services/authService"
 
 export default function UserMenu({ session }: { session: any }) {
   const [open, setOpen] = useState(false)
@@ -17,20 +18,15 @@ export default function UserMenu({ session }: { session: any }) {
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
 
-  const logout = () => {
-    window.location.href = "http://localhost:8787/api/auth/signout"
-  }
+
 
   if (!session?.user) {
     return (
       <button
-        onClick={() =>
-          (window.location.href =
-            "http://localhost:8787/api/auth/signin/google?callbackUrl=http://localhost:3000")
-        }
+        onClick={() => login}
         className="bg-blue-600 hover:bg-blue-500 px-4 py-1 rounded text-sm font-medium"
       >
-        Login
+        ログイン
       </button>
     )
   }
