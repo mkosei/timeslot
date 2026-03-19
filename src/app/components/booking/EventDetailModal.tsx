@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { Event } from "@/app/types/type"
 import dayjs from "dayjs"
 import type { FormState } from "@/app/types/type"
+import { sanitize, isValidTimeRange, isValidUrl, isValidEmail } from "@/app/lib/valid"
 
 type Props = {
   event: Event | null
@@ -20,6 +21,13 @@ export default function EventModal({
 }: Props) {
 
   const [editMode, setEditMode] = useState(false)
+  const [errors, setErrors] = useState<{
+  title?: string
+  time?: string
+  guest_email?: string
+  url?: string
+  }>({})
+
 
   const [form, setForm] = useState<FormState>({
     title: "",
@@ -54,10 +62,31 @@ export default function EventModal({
   }
 
   const handleUpdate = async () => {
-    if (form.end <= form.start) {
-      alert("終了時間は開始時間より後にしてください")
-      return
+    const safeTitle = sanitize(form.title.trim())
+    const safeName = sanitize(form.guest_name.trim())
+    const safeEmail = sanitize(form.guest_email.trim())
+    const safeUrl = sanitize(form.url.trim())
+
+    const newErrors: typeof errors = {}
+
+    if (!safeTitle) {
+      newErrors.title = "タイトルは必須です"
     }
+
+    if (!isValidTimeRange(form.start, form.end)) {
+      newErrors.time = "開始は終了より前にしてください"
+    }
+
+    if (safeEmail && !isValidEmail(safeEmail)) {
+      newErrors.guest_email = "メール形式が不正です"
+    }
+
+    if (safeUrl && !isValidUrl(safeUrl)) {
+      newErrors.url = "URL形式が不正です"
+    }
+
+    setErrors(newErrors)
+    if (Object.keys(newErrors).length > 0) return
 
     try {
       const start = dayjs(`${form.date}T${form.start}`).toISOString()
@@ -72,12 +101,12 @@ export default function EventModal({
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            title: form.title,
-            guest_name: form.guest_name,
-            guest_email: form.guest_email,
+            title: safeTitle,
+            guest_name: safeName,
+            guest_email: safeEmail,
             start,
             end,
-            meet_url: form.url
+            meet_url: safeUrl
           })
         }
       )
@@ -86,7 +115,6 @@ export default function EventModal({
 
       onUpdated()
       onClose()
-
     } catch {
       alert("更新に失敗しました")
     }
@@ -126,17 +154,28 @@ export default function EventModal({
 
         <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-700">
 
-          {!editMode ? (
-            <h2 className="text-lg font-semibold text-white">
-              {event.title}
-            </h2>
-          ) : (
-            <input
-              value={form.title}
-              onChange={(e) => updateField("title", e.target.value)}
-              className="bg-zinc-800 px-3 py-1.5 rounded w-full text-white"
-            />
-          )}
+          <div className="flex-1 flex flex-col">
+            {!editMode ? (
+              <h2 className="text-lg font-semibold text-white">
+                {event.title}
+              </h2>
+            ) : (
+              <input
+                value={form.title}
+                onChange={(e) => {
+                  updateField("title", e.target.value)
+                  setErrors((prev) => ({ ...prev, title: undefined }))
+                }}
+                className="bg-zinc-800 px-3 py-1.5 rounded w-full text-white"
+              />
+            )}
+
+            {editMode && errors.title && (
+              <p className="text-zinc-400 text-xs mt-1">
+                {errors.title}
+              </p>
+            )}
+          </div>
 
           <button
             onClick={onClose}
@@ -160,6 +199,7 @@ export default function EventModal({
                 {event.date} {event.start} – {event.end}
               </p>
             ) : (
+              <div className="flex-1 flex flex-col">
               <div className="flex gap-2">
 
                 <input
@@ -168,21 +208,30 @@ export default function EventModal({
                   onChange={(e) => updateField("date", e.target.value)}
                   className="bg-zinc-700 p-2 rounded text-sm"
                 />
-
+              
                 <input
                   type="time"
                   value={form.start}
-                  onChange={(e) => updateField("start", e.target.value)}
+                  onChange={(e) => {
+                    updateField("start", e.target.value)
+                    setErrors((prev) => ({ ...prev, time: undefined }))
+                  }}
                   className="bg-zinc-700 p-2 rounded text-sm"
                 />
 
                 <input
                   type="time"
                   value={form.end}
-                  onChange={(e) => updateField("end", e.target.value)}
+                  onChange={(e) => {
+                    updateField("end", e.target.value)
+                    setErrors((prev) => ({ ...prev, time: undefined }))
+                  }}
                   className="bg-zinc-700 p-2 rounded text-sm"
                 />
-
+              </div>
+                <p className="text-zinc-400 text-xs mt-1">
+                  {errors.time}
+                </p>
               </div>
             )}
 
@@ -206,7 +255,7 @@ export default function EventModal({
               <>
                 <input
                   value={form.guest_name}
-                  onChange={(e) =>
+                  onChange={(e) => 
                     updateField("guest_name", e.target.value)
                   }
                   placeholder="名前"
@@ -215,12 +264,17 @@ export default function EventModal({
 
                 <input
                   value={form.guest_email}
-                  onChange={(e) =>
-                    updateField("guest_email", e.target.value)
+                  onChange={(e) => {
+                    updateField("guest_name", e.target.value)
+                    setErrors((prev) => ({ ...prev, guest_email: undefined }))
+                  }
                   }
                   placeholder="メール"
                   className="w-full bg-zinc-800 p-2 rounded"
                 />
+                <p className="text-zinc-400 text-xs mt-1">
+                  {errors.guest_email}
+                </p>
               </>
             )}
 
@@ -247,11 +301,17 @@ export default function EventModal({
             ) : (
               <input
                 value={form.url}
-                onChange={(e) => updateField("url", e.target.value)}
+                onChange={(e) => {
+                  updateField("url", e.target.value)
+                  setErrors((prev) => ({ ...prev, url: undefined }))
+                }}
                 placeholder="https://meet.google.com/..."
                 className="w-full bg-zinc-800 p-2 rounded"
               />
             )}
+            <p className="text-zinc-400 text-xs mt-1">
+              {errors.url}
+            </p>
 
           </div>
 
@@ -287,7 +347,7 @@ export default function EventModal({
 
               <button
                 onClick={handleUpdate}
-                className="px-4 py-1.5 bg-green-600 rounded-md text-sm hover:bg-green-500"
+                className="px-4 py-1.5 bg-blue-600 rounded-md text-sm hover:bg-blue-500"
               >
                 保存
               </button>

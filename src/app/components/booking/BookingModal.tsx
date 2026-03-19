@@ -3,6 +3,7 @@
 import { useState } from "react"
 import dayjs from "dayjs"
 import { createBooking } from "@/app/services/bookingService"
+import { sanitize, isValidTimeRange, isValidUrl, isValidEmail } from "@/app/lib/valid"
 
 type Props = {
   open: boolean
@@ -20,6 +21,13 @@ export default function BookingModal({ open, onClose, onBooked }: Props) {
   const [endTime, setEndTime] = useState("09:30")
   const [url, setUrl] = useState("")
   const [loading, setLoading] = useState(false)
+  const [errors, setErrors] = useState<{
+  title?: string
+  date?: string
+  time?: string
+  guestEmail?: string
+  url?: string
+  }>({})
 
   if (!open) return null
 
@@ -33,26 +41,54 @@ export default function BookingModal({ open, onClose, onBooked }: Props) {
   }
 
   const handleSubmit = async () => {
+    const safeTitle = sanitize(title.trim())
+    const safeName = sanitize(guestName.trim())
+    const safeEmail = sanitize(guestEmail.trim())
+    const safeUrl = sanitize(url.trim())
+
+    const newErrors: typeof errors = {}
+
+    if (!safeTitle) {
+      newErrors.title = "タイトルは必須です"
+    }
+
+    if (!date) {
+      newErrors.date = "日付を選択してください"
+    }
+
+    if (!isValidTimeRange(startTime, endTime)) {
+      newErrors.time = "開始は終了より前にしてください"
+    }
+
+    if (safeEmail && !isValidEmail(safeEmail)) {
+      newErrors.guestEmail = "メール形式が不正です"
+    }
+
+    if (safeUrl && !isValidUrl(safeUrl)) {
+      newErrors.url = "URL形式が不正です"
+    }
+
+    setErrors(newErrors)
+    if (Object.keys(newErrors).length > 0) return
+
     setLoading(true)
 
     try {
-
       const start = dayjs(`${date}T${startTime}`).toISOString()
       const end = dayjs(`${date}T${endTime}`).toISOString()
 
       await createBooking({
-        title,
-        guest_name: guestName,
-        guest_email: guestEmail,
+        title: safeTitle,
+        guest_name: safeName,
+        guest_email: safeEmail,
         start,
         end,
-        meet_url: url
+        meet_url: safeUrl
       })
 
       resetForm()
       onBooked()
       onClose()
-
     } finally {
       setLoading(false)
     }
@@ -98,23 +134,37 @@ export default function BookingModal({ open, onClose, onBooked }: Props) {
                 type="date"
                 className="bg-zinc-800 p-2 rounded text-sm"
                 value={date}
-                onChange={(e) => setDate(e.target.value)}
+                onChange={(e) => {
+                  setDate(e.target.value)
+                  setErrors((prev) => ({ ...prev, date: undefined }))
+                }}
               />
+              {errors.date && (
+                <p className="text-zinc-400 text-xs mt-1">{errors.date}</p>
+              )}
 
               <input
                 type="time"
                 className="bg-zinc-800 p-2 rounded text-sm"
                 value={startTime}
-                onChange={(e) => setStartTime(e.target.value)}
+                onChange={(e) => {
+                  setStartTime(e.target.value)
+                  setErrors((prev) => ({ ...prev, time: undefined }))
+                }}
               />
+              {errors.time && (
+                <p className="text-zinc-400 text-xs mt-1">{errors.time}</p>
+              )}
 
               <input
                 type="time"
                 className="bg-zinc-800 p-2 rounded text-sm"
                 value={endTime}
-                onChange={(e) => setEndTime(e.target.value)}
+                onChange={(e) => {
+                  setEndTime(e.target.value)
+                  setErrors((prev) => ({ ...prev, time: undefined }))
+                }}
               />
-
             </div>
 
           </div>
@@ -129,8 +179,14 @@ export default function BookingModal({ open, onClose, onBooked }: Props) {
               type="text"
               className="w-full bg-zinc-800 p-2 rounded"
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={(e) => {
+                setTitle(e.target.value)
+                setErrors((prev) => ({ ...prev, title: undefined }))
+              }}
             />
+            {errors.title && (
+              <p className="text-zinc-400 text-xs mt-1">{errors.title}</p>
+            )}
 
           </div>
 
@@ -153,8 +209,14 @@ export default function BookingModal({ open, onClose, onBooked }: Props) {
               placeholder="メール"
               className="w-full bg-zinc-800 p-2 rounded"
               value={guestEmail}
-              onChange={(e) => setGuestEmail(e.target.value)}
+              onChange={(e) => {
+                setGuestEmail(e.target.value)
+                setErrors((prev) => ({ ...prev, guestEmail: undefined }))
+              }}
             />
+            {errors.guestEmail && (
+              <p className="text-zinc-400 text-xs mt-1">{errors.guestEmail}</p>
+            )}
 
           </div>
 
@@ -170,8 +232,15 @@ export default function BookingModal({ open, onClose, onBooked }: Props) {
               placeholder="https://meet.google.com/..."
               className="w-full bg-zinc-800 p-2 rounded"
               value={url}
-              onChange={(e) => setUrl(e.target.value)}
+              onChange={(e) => {
+                setUrl(e.target.value)
+                setErrors((prev) => ({ ...prev, url: undefined }))
+              }}
             />
+
+            {errors.url && (
+              <p className="text-zinc-400 text-xs mt-1">{errors.url}</p>
+            )}
 
           </div>
 

@@ -2,6 +2,7 @@
 
 import { CreateLinkResponse } from "@/app/types/type"
 import { useState } from "react"
+import { sanitize, isValidTimeRange, isValidUrl } from "@/app/lib/valid"
 
 type Props = {
   open: boolean
@@ -17,52 +18,90 @@ export default function CreateLinkModal({ open, onClose }: Props) {
   const [meetUrl, setMeetUrl] = useState("")
   const [loading, setLoading] = useState(false)
   const [link, setLink] = useState<string | null>(null)
+  const [errors, setErrors] = useState<{
+  title?: string
+  duration?: string
+  days?: string
+  time?: string
+  meetUrl?: string
+}>({})
 
   if (!open) return null
 
-    const resetForm = () => {
-        setTitle("")
-        setDuration(30)
-        setDays(7)
-        setStartTime("09:00")
-        setEndTime("18:00")
-        setMeetUrl("")
-        setLink(null)
-    }
+const resetForm = () => {
+    setTitle("")
+    setDuration(30)
+    setDays(7)
+    setStartTime("09:00")
+    setEndTime("18:00")
+    setMeetUrl("")
+    setLink(null)
+}
 
-  const handleCreate = async () => {
-    setLoading(true)
-    try {
-      const res = await fetch("http://localhost:8787/api/bookings/links", {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            duration: duration,
-            days_ahead: days,
-            title: title,
-            start_time: startTime,
-            end_time: endTime,
-            meet_url: meetUrl || null
-        })
-        })
+const handleCreate = async () => {
 
-      const data = await res.json() as CreateLinkResponse
+  const safeTitle = sanitize(title.trim())
+  const safeMeetUrl = sanitize(meetUrl.trim())
 
-      setLink(`http://localhost:3000/booking/${data.slug}`)
-    } catch {
-      alert("作成失敗")
-    } finally {
-      setLoading(false)
-    }
+  const newErrors: typeof errors = {}
+
+  if (!safeTitle) {
+    newErrors.title = "タイトルは必須です"
   }
 
+  if (duration < 15 || duration > 120) {
+    newErrors.duration = "15〜120分で入力してください"
+  }
+
+  if (days < 1 || days > 365) {
+    newErrors.days = "1〜365で入力してください"
+  }
+
+  if (!isValidTimeRange(startTime, endTime)) {
+    newErrors.time = "開始は終了より前にしてください"
+  }
+
+  if (safeMeetUrl && !isValidUrl(safeMeetUrl)) {
+    newErrors.meetUrl = "URL形式が不正です"
+  }
+
+  setErrors(newErrors)
+
+  if (Object.keys(newErrors).length > 0) return
+
+  setLoading(true)
+
+  try {
+    const res = await fetch("http://localhost:8787/api/bookings/links", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        duration: duration,
+        days_ahead: days,
+        title: safeTitle,
+        start_time: startTime,
+        end_time: endTime,
+        meet_url: safeMeetUrl || null
+      })
+    })
+
+    const data = (await res.json()) as CreateLinkResponse
+
+    setLink(`http://localhost:3000/booking/${data.slug}`)
+  } catch {
+    alert("作成失敗")
+  } finally {
+    setLoading(false)
+  }
+}
+
   const copy = async () => {
-    if (!link) return
-    await navigator.clipboard.writeText(link)
-    alert("コピーしました")
+      if (!link) return
+      await navigator.clipboard.writeText(link)
+      alert("コピーしました")
   }
 
   return (
@@ -84,6 +123,23 @@ export default function CreateLinkModal({ open, onClose }: Props) {
 
         {/* body */}
         <div className="p-6 space-y-6">
+          <div>
+            <label className="text-sm text-zinc-400">
+              タイトル*
+            </label>
+            <input
+              value={title}
+              onChange={(e) => {
+                setTitle(e.target.value)
+                setErrors((prev) => ({ ...prev, title: undefined }))
+              }}
+              placeholder="ミーティング"
+              className="w-full mt-1 bg-zinc-800 p-2 rounded"
+            />
+            {errors.title && (
+              <p className="text-zinc-400 text-xs mt-1">{errors.title}</p>
+            )}
+          </div>
 
           {/* duration */}
           <div>
@@ -92,13 +148,22 @@ export default function CreateLinkModal({ open, onClose }: Props) {
             </label>
             <select
               value={duration}
-              onChange={(e) => setDuration(Number(e.target.value))}
+              onChange={(e) => {
+                setDuration(Number(e.target.value))
+                setErrors((prev) => ({ ...prev, duration: undefined }))
+              }}
               className="w-full mt-1 bg-zinc-800 p-2 rounded"
             >
               <option value={15}>15分</option>
               <option value={30}>30分</option>
+              <option value={15}>45分</option>
               <option value={60}>60分</option>
+              <option value={90}>90分</option>
+              <option value={120}>120分</option>
             </select>
+            {errors.duration && (
+              <p className="text-zinc-400 text-xs mt-1">{errors.duration}</p>
+            )}
           </div>
 
           {/* days */}
@@ -109,47 +174,51 @@ export default function CreateLinkModal({ open, onClose }: Props) {
             <input
               type="number"
               value={days}
-              onChange={(e) => setDays(Number(e.target.value))}
+              onChange={(e) => {
+                setDays(Number(e.target.value))
+                setErrors((prev) => ({ ...prev, days: undefined }))
+              }}
               className="w-full mt-1 bg-zinc-800 p-2 rounded"
             />
+            {errors.days && (
+              <p className="text-zinc-400 text-xs mt-1">{errors.days}</p>
+            )}
           </div>
 
           {/* time */}
           <div className="flex gap-2">
             <div className="flex-1">
               <label className="text-sm text-zinc-400">
-                開始時間
+                対応可能時刻（から）
               </label>
               <input
                 type="time"
                 value={startTime}
-                onChange={(e) => setStartTime(e.target.value)}
+                onChange={(e) => {
+                  setStartTime(e.target.value)
+                  setErrors((prev) => ({ ...prev, time: undefined }))
+                }}
                 className="w-full mt-1 bg-zinc-800 p-2 rounded"
               />
+            {errors.time && (
+              <p className="text-zinc-400 text-xs mt-1">{errors.time}</p>
+            )}
             </div>
 
             <div className="flex-1">
               <label className="text-sm text-zinc-400">
-                終了時間
+                対応終了時刻（まで）
               </label>
               <input
                 type="time"
                 value={endTime}
-                onChange={(e) => setEndTime(e.target.value)}
+                onChange={(e) => {
+                  setEndTime(e.target.value)
+                  setErrors((prev) => ({ ...prev, time: undefined }))
+                }}
                 className="w-full mt-1 bg-zinc-800 p-2 rounded"
               />
             </div>
-          </div>
-          <div>
-            <label className="text-sm text-zinc-400">
-              タイトル
-            </label>
-            <input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="ミーティング"
-              className="w-full mt-1 bg-zinc-800 p-2 rounded"
-            />
           </div>
 
           {/* meet */}
@@ -159,10 +228,16 @@ export default function CreateLinkModal({ open, onClose }: Props) {
             </label>
             <input
               value={meetUrl}
-              onChange={(e) => setMeetUrl(e.target.value)}
+              onChange={(e) => {
+                setMeetUrl(e.target.value)
+                setErrors((prev) => ({ ...prev, meetUrl: undefined }))
+              }}
               placeholder="https://..."
               className="w-full mt-1 bg-zinc-800 p-2 rounded"
             />
+            {errors.meetUrl && (
+            <p className="text-zinc-400 text-xs mt-1">{errors.meetUrl}</p>
+            )}
           </div>
 
           {/* result */}
