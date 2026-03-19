@@ -1,8 +1,11 @@
 "use client"
 
-import { CreateLinkResponse } from "@/app/types/type"
 import { useState } from "react"
-import { sanitize, isValidTimeRange, isValidUrl } from "@/app/lib/valid"
+import { bookingLinkSchema } from "@/app/lib/validators/bookingLink"
+import { formatErrors } from "@/app/lib/validators/format"
+import * as v from "valibot"
+import { APP_URL } from "@/app/lib/config"
+import { createBookingLink } from "@/app/services/bookingLinkService"
 
 type Props = {
   open: boolean
@@ -39,58 +42,35 @@ const resetForm = () => {
 }
 
 const handleCreate = async () => {
+  const result = v.safeParse(bookingLinkSchema, {
+    title,
+    duration,
+    days,
+    startTime,
+    endTime,
+    meetUrl: meetUrl || undefined
+  })
 
-  const safeTitle = sanitize(title.trim())
-  const safeMeetUrl = sanitize(meetUrl.trim())
-
-  const newErrors: typeof errors = {}
-
-  if (!safeTitle) {
-    newErrors.title = "タイトルは必須です"
+  if (!result.success) {
+    setErrors(formatErrors(result.issues))
+    return
   }
 
-  if (duration < 15 || duration > 120) {
-    newErrors.duration = "15〜120分で入力してください"
-  }
-
-  if (days < 1 || days > 365) {
-    newErrors.days = "1〜365で入力してください"
-  }
-
-  if (!isValidTimeRange(startTime, endTime)) {
-    newErrors.time = "開始は終了より前にしてください"
-  }
-
-  if (safeMeetUrl && !isValidUrl(safeMeetUrl)) {
-    newErrors.meetUrl = "URL形式が不正です"
-  }
-
-  setErrors(newErrors)
-
-  if (Object.keys(newErrors).length > 0) return
+  const data = result.output
 
   setLoading(true)
 
   try {
-    const res = await fetch("http://localhost:8787/api/bookings/links", {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        duration: duration,
-        days_ahead: days,
-        title: safeTitle,
-        start_time: startTime,
-        end_time: endTime,
-        meet_url: safeMeetUrl || null
-      })
+    const res = await createBookingLink({
+      title: data.title,
+      duration: data.duration,
+      days_ahead: data.days,
+      start_time: data.startTime,
+      end_time: data.endTime,
+      meet_url: data.meetUrl ?? null
     })
 
-    const data = (await res.json()) as CreateLinkResponse
-
-    setLink(`http://localhost:3000/booking/${data.slug}`)
+    setLink(`${APP_URL}/booking/${res.slug}`)
   } catch {
     alert("作成失敗")
   } finally {

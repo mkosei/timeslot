@@ -3,7 +3,9 @@
 import { useState } from "react"
 import dayjs from "dayjs"
 import { createBooking } from "@/app/services/bookingService"
-import { sanitize, isValidTimeRange, isValidUrl, isValidEmail } from "@/app/lib/valid"
+import * as v from "valibot"
+import { createBookingSchema } from "@/app/lib/validators/booking"
+import { formatErrors } from "@/app/lib/validators/format"
 
 type Props = {
   open: boolean
@@ -41,49 +43,36 @@ export default function BookingModal({ open, onClose, onBooked }: Props) {
   }
 
   const handleSubmit = async () => {
-    const safeTitle = sanitize(title.trim())
-    const safeName = sanitize(guestName.trim())
-    const safeEmail = sanitize(guestEmail.trim())
-    const safeUrl = sanitize(url.trim())
+    const result = v.safeParse(createBookingSchema, {
+      title,
+      guestName,
+      guestEmail: guestEmail || undefined,
+      date,
+      startTime,
+      endTime,
+      url: url || undefined
+    })
 
-    const newErrors: typeof errors = {}
-
-    if (!safeTitle) {
-      newErrors.title = "タイトルは必須です"
+    if (!result.success) {
+      setErrors(formatErrors(result.issues))
+      return
     }
 
-    if (!date) {
-      newErrors.date = "日付を選択してください"
-    }
-
-    if (!isValidTimeRange(startTime, endTime)) {
-      newErrors.time = "開始は終了より前にしてください"
-    }
-
-    if (safeEmail && !isValidEmail(safeEmail)) {
-      newErrors.guestEmail = "メール形式が不正です"
-    }
-
-    if (safeUrl && !isValidUrl(safeUrl)) {
-      newErrors.url = "URL形式が不正です"
-    }
-
-    setErrors(newErrors)
-    if (Object.keys(newErrors).length > 0) return
+    const data = result.output
 
     setLoading(true)
 
     try {
-      const start = dayjs(`${date}T${startTime}`).toISOString()
-      const end = dayjs(`${date}T${endTime}`).toISOString()
+      const start = dayjs(`${data.date}T${data.startTime}`).toISOString()
+      const end = dayjs(`${data.date}T${data.endTime}`).toISOString()
 
       await createBooking({
-        title: safeTitle,
-        guest_name: safeName,
-        guest_email: safeEmail,
+        title: data.title,
+        guest_name: data.guestName,
+        guest_email: data.guestEmail ?? "",
         start,
         end,
-        meet_url: safeUrl
+        meet_url: data.url ?? ""
       })
 
       resetForm()

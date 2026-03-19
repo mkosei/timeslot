@@ -4,7 +4,11 @@ import { useState, useEffect } from "react"
 import { Event } from "@/app/types/type"
 import dayjs from "dayjs"
 import type { FormState } from "@/app/types/type"
-import { sanitize, isValidTimeRange, isValidUrl, isValidEmail } from "@/app/lib/valid"
+import { deleteBooking } from "@/app/services/bookingService"
+import { updateBooking } from "@/app/services/bookingService"
+import * as v from "valibot"
+import { updateBookingSchema } from "@/app/lib/validators/updateBooking"
+import { formatErrors } from "@/app/lib/validators/format"
 
 type Props = {
   event: Event | null
@@ -62,56 +66,36 @@ export default function EventModal({
   }
 
   const handleUpdate = async () => {
-    const safeTitle = sanitize(form.title.trim())
-    const safeName = sanitize(form.guest_name.trim())
-    const safeEmail = sanitize(form.guest_email.trim())
-    const safeUrl = sanitize(form.url.trim())
+    const result = v.safeParse(updateBookingSchema, {
+      title: form.title,
+      guest_name: form.guest_name,
+      guest_email: form.guest_email || undefined,
+      date: form.date,
+      start: form.start,
+      end: form.end,
+      url: form.url || undefined
+    })
 
-    const newErrors: typeof errors = {}
-
-    if (!safeTitle) {
-      newErrors.title = "タイトルは必須です"
+    if (!result.success) {
+      setErrors(formatErrors(result.issues))
+      return
     }
 
-    if (!isValidTimeRange(form.start, form.end)) {
-      newErrors.time = "開始は終了より前にしてください"
-    }
-
-    if (safeEmail && !isValidEmail(safeEmail)) {
-      newErrors.guest_email = "メール形式が不正です"
-    }
-
-    if (safeUrl && !isValidUrl(safeUrl)) {
-      newErrors.url = "URL形式が不正です"
-    }
-
-    setErrors(newErrors)
-    if (Object.keys(newErrors).length > 0) return
+    const data = result.output
 
     try {
-      const start = dayjs(`${form.date}T${form.start}`).toISOString()
-      const end = dayjs(`${form.date}T${form.end}`).toISOString()
+      const start = dayjs(`${data.date}T${data.start}`).toISOString()
+      const end = dayjs(`${data.date}T${data.end}`).toISOString()
 
-      const res = await fetch(
-        `http://localhost:8787/api/bookings/${event.id}`,
-        {
-          method: "PUT",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            title: safeTitle,
-            guest_name: safeName,
-            guest_email: safeEmail,
-            start,
-            end,
-            meet_url: safeUrl
-          })
-        }
-      )
-
-      if (!res.ok) throw new Error()
+      await updateBooking({
+        id: event.id,
+        title: data.title,
+        guest_name: data.guest_name,
+        guest_email: data.guest_email ?? "",
+        start,
+        end,
+        meet_url: data.url ?? ""
+      })
 
       onUpdated()
       onClose()
@@ -124,19 +108,10 @@ export default function EventModal({
     if (!confirm("この予約を削除しますか？")) return
 
     try {
-      const res = await fetch(
-        `http://localhost:8787/api/bookings/${event.id}`,
-        {
-          method: "DELETE",
-          credentials: "include"
-        }
-      )
-
-      if (!res.ok) throw new Error()
+      await deleteBooking(event.id)
 
       onUpdated()
       onClose()
-
     } catch {
       alert("削除に失敗しました")
     }

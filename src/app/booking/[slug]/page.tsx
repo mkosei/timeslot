@@ -1,17 +1,15 @@
 "use client"
 
-import { useEffect, useState, use } from "react"
+import { useEffect, useState, useMemo, use } from "react"
 import dayjs from "dayjs"
-import { sanitize, isValidEmail } from "@/app/lib/valid"
+import { createBookingFromLink, getBookingSlots } from "@/app/services/bookingLinkService"
+import * as v from "valibot"
+import { bookingFromLinkSchema } from "@/app/lib/validators/bookingFromLink"
+import { formatErrors } from "@/app/lib/validators/format"
 
 type Slot = {
   start: string
   end: string
-}
-
-type BookingResponse = {
-  title: string
-  slots: Slot[]
 }
 
 export default function BookingPage({
@@ -27,6 +25,7 @@ export default function BookingPage({
   const [email, setEmail] = useState("")
   const [loading, setLoading] = useState(false)
   const [done, setDone] = useState(false)
+  const [loadingSlots, setLoadingSlots] = useState(true)
 
   const [errors, setErrors] = useState<{
     name?: string
@@ -36,25 +35,29 @@ export default function BookingPage({
 
   const { slug } = use(params)
 
-  // slots取得
+
   useEffect(() => {
     const fetchSlots = async () => {
-      const res = await fetch(
-        `http://localhost:8787/api/bookings/${slug}`
-      )
-      const data = (await res.json()) as BookingResponse
-
-      setSlots(data.slots)
-      setTitle(data.title)
+      setLoadingSlots(true)
+      try {
+        const data = await getBookingSlots(slug)
+        setSlots(data.slots)
+        setTitle(data.title)
+      } catch (e) {
+      } finally {
+        setLoadingSlots(false)
+      }
     }
 
     fetchSlots()
   }, [slug])
 
   // 日付一覧
-  const dates = Array.from(
-    new Set(slots.map((s) => dayjs(s.start).format("YYYY-MM-DD")))
-  )
+  const dates = useMemo(() => {
+    return Array.from(
+      new Set(slots.map((s) => dayjs(s.start).format("YYYY-MM-DD")))
+    )
+  }, [slots])
 
   // 選択日のスロット
   const filteredSlots = slots.filter(
@@ -63,45 +66,29 @@ export default function BookingPage({
       dayjs(s.start).format("YYYY-MM-DD") === selectedDate
   )
 
-  // 予約
   const handleBooking = async () => {
-    const safeName = sanitize(name.trim())
-    const safeEmail = sanitize(email.trim())
+    const result = v.safeParse(bookingFromLinkSchema, { name, email })
 
-    const newErrors: typeof errors = {}
-
-    if (!selectedSlot) {
-      newErrors.slot = "時間を選択してください"
+    // エラー処理（全部ここで終わらせる）
+    if (!result.success || !selectedSlot) {
+      setErrors({
+        ...(!result.success ? formatErrors(result.issues) : {}),
+        ...(!selectedSlot ? { slot: "時間を選択してください" } : {})
+      })
+      return
     }
 
-    if (!safeName) {
-      newErrors.name = "名前は必須です"
-    }
-
-    if (!safeEmail) {
-      newErrors.email = "メールは必須です"
-    } else if (!isValidEmail(safeEmail)) {
-      newErrors.email = "メール形式が不正です"
-    }
-
-    setErrors(newErrors)
-
-    if (Object.keys(newErrors).length > 0) return
+    const data = result.output
 
     setLoading(true)
+
     try {
-      await fetch(`http://localhost:8787/api/bookings/${slug}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          title: title,
-          start: selectedSlot!.start,
-          end: selectedSlot!.end,
-          guest_name: safeName,
-          guest_email: safeEmail
-        })
+      await createBookingFromLink(slug, {
+        title,
+        start: selectedSlot.start,
+        end: selectedSlot.end,
+        guest_name: data.name,
+        guest_email: data.email
       })
 
       setDone(true)
@@ -112,6 +99,14 @@ export default function BookingPage({
     }
   }
 
+  //空き時間取得画面
+  if (loadingSlots) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-zinc-900 text-white">
+        相手の空き時間を取得中...
+      </div>
+    )
+  }
   // 完了画面
   if (done) {
     return (
