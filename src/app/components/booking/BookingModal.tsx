@@ -89,7 +89,7 @@ export default function BookingModal({ open, onClose, onBooked }: Props) {
       onClick={onClose}
     >
       <div
-        className="w-[440px] rounded-2xl bg-zinc-900 border border-zinc-700 shadow-2xl"
+        className="w-[480px] rounded-2xl bg-zinc-800 border border-zinc-700 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
 
@@ -121,7 +121,7 @@ export default function BookingModal({ open, onClose, onBooked }: Props) {
 
               <input
                 type="date"
-                className="bg-zinc-800 p-2 rounded text-sm"
+                className="bg-zinc-800 p-2 rounded text-sm border border-zinc-600 focus:outline-none"
                 value={date}
                 onChange={(e) => {
                   setDate(e.target.value)
@@ -134,7 +134,7 @@ export default function BookingModal({ open, onClose, onBooked }: Props) {
 
               <input
                 type="time"
-                className="bg-zinc-800 p-2 rounded text-sm"
+                className="bg-zinc-800 p-2 rounded text-sm border border-zinc-600 focus:outline-none"
                 value={startTime}
                 onChange={(e) => {
                   setStartTime(e.target.value)
@@ -147,7 +147,7 @@ export default function BookingModal({ open, onClose, onBooked }: Props) {
 
               <input
                 type="time"
-                className="bg-zinc-800 p-2 rounded text-sm"
+                className="bg-zinc-800 p-2 rounded text-sm border border-zinc-600 focus:outline-none"
                 value={endTime}
                 onChange={(e) => {
                   setEndTime(e.target.value)
@@ -166,7 +166,8 @@ export default function BookingModal({ open, onClose, onBooked }: Props) {
 
             <input
               type="text"
-              className="w-full bg-zinc-800 p-2 rounded"
+              placeholder="ミーティング"
+              className="w-full bg-zinc-800 p-2 rounded border border-zinc-600 focus:outline-none"
               value={title}
               onChange={(e) => {
                 setTitle(e.target.value)
@@ -188,7 +189,7 @@ export default function BookingModal({ open, onClose, onBooked }: Props) {
             <input
               type="text"
               placeholder="名前"
-              className="w-full bg-zinc-800 p-2 rounded"
+              className="w-full bg-zinc-800 p-2 rounded border border-zinc-600 focus:outline-none"
               value={guestName}
               onChange={(e) => setGuestName(e.target.value)}
             />
@@ -196,7 +197,7 @@ export default function BookingModal({ open, onClose, onBooked }: Props) {
             <input
               type="email"
               placeholder="メール"
-              className="w-full bg-zinc-800 p-2 rounded"
+              className="w-full bg-zinc-800 p-2 rounded border border-zinc-600 focus:outline-none"
               value={guestEmail}
               onChange={(e) => {
                 setGuestEmail(e.target.value)
@@ -219,7 +220,7 @@ export default function BookingModal({ open, onClose, onBooked }: Props) {
             <input
               type="text"
               placeholder="https://meet.google.com/..."
-              className="w-full bg-zinc-800 p-2 rounded"
+              className="w-full bg-zinc-800 p-2 rounded border border-zinc-600 focus:outline-none"
               value={url}
               onChange={(e) => {
                 setUrl(e.target.value)
@@ -239,7 +240,13 @@ export default function BookingModal({ open, onClose, onBooked }: Props) {
         <div className="flex justify-end px-6 py-4 border-t border-zinc-700">
 
           <button
-            className="px-4 py-1.5 bg-blue-600 rounded-md text-sm hover:bg-blue-500 disabled:opacity-50"
+            className="
+                px-2 py-1 rounded-xl
+                border border-blue-600 text-blue-300
+                hover:bg-zinc-700
+                active:scale-95
+                transition-all duration-150
+            " 
             onClick={handleSubmit}
             disabled={loading}
           >

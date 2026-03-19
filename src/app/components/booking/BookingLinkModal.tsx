@@ -90,7 +90,7 @@ const handleCreate = async () => {
       onClick={onClose}
     >
       <div
-        className="w-[480px] bg-zinc-900 border border-zinc-700 rounded-2xl shadow-2xl"
+        className="w-[480px] bg-zinc-800 border border-zinc-700 rounded-2xl shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* header */}
@@ -114,7 +114,7 @@ const handleCreate = async () => {
                 setErrors((prev) => ({ ...prev, title: undefined }))
               }}
               placeholder="ミーティング"
-              className="w-full mt-1 bg-zinc-800 p-2 rounded"
+              className="w-full mt-1 bg-zinc-800 p-2 rounded border border-zinc-600 focus:outline-none"
             />
             {errors.title && (
               <p className="text-zinc-400 text-xs mt-1">{errors.title}</p>
@@ -132,7 +132,7 @@ const handleCreate = async () => {
                 setDuration(Number(e.target.value))
                 setErrors((prev) => ({ ...prev, duration: undefined }))
               }}
-              className="w-full mt-1 bg-zinc-800 p-2 rounded"
+              className="w-full mt-1 bg-zinc-800 p-2 rounded border border-zinc-600 focus:outline-none"
             >
               <option value={15}>15分</option>
               <option value={30}>30分</option>
@@ -154,7 +154,7 @@ const handleCreate = async () => {
             <select
               value={days}
               onChange={(e) => setDays(Number(e.target.value))}
-              className="w-full mt-1 bg-zinc-800 p-2 rounded"
+              className="w-full mt-1 bg-zinc-800 p-2 rounded border border-zinc-600 focus:outline-none"
             >
               <option value={7}>7日</option>
               <option value={14}>14日</option>
@@ -180,7 +180,7 @@ const handleCreate = async () => {
                   setStartTime(e.target.value)
                   setErrors((prev) => ({ ...prev, time: undefined }))
                 }}
-                className="w-full mt-1 bg-zinc-800 p-2 rounded"
+                className="w-full mt-1 bg-zinc-800 p-2 rounded border border-zinc-600 focus:outline-none"
               />
             {errors.time && (
               <p className="text-zinc-400 text-xs mt-1">{errors.time}</p>
@@ -198,7 +198,7 @@ const handleCreate = async () => {
                   setEndTime(e.target.value)
                   setErrors((prev) => ({ ...prev, time: undefined }))
                 }}
-                className="w-full mt-1 bg-zinc-800 p-2 rounded"
+                className="w-full mt-1 bg-zinc-800 p-2 rounded border border-zinc-600 focus:outline-none"
               />
             </div>
           </div>
@@ -215,7 +215,7 @@ const handleCreate = async () => {
                 setErrors((prev) => ({ ...prev, meetUrl: undefined }))
               }}
               placeholder="https://..."
-              className="w-full mt-1 bg-zinc-800 p-2 rounded"
+              className="w-full mt-1 bg-zinc-800 p-2 rounded border border-zinc-600 focus:outline-none"
             />
             {errors.meetUrl && (
             <p className="text-zinc-400 text-xs mt-1">{errors.meetUrl}</p>
@@ -249,7 +249,13 @@ const handleCreate = async () => {
           <button
             onClick={handleCreate}
             disabled={loading}
-            className="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded"
+            className="
+                px-2 py-1 rounded-xl
+                border border-blue-600 text-blue-300
+                hover:bg-zinc-700
+                active:scale-95
+                transition-all duration-150
+            " 
           >
             {loading ? "作成中..." : "リンク生成"}
           </button>

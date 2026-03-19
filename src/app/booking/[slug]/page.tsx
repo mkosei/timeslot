@@ -211,7 +211,7 @@ export default function BookingPage({
                     setName(e.target.value)
                     setErrors((prev) => ({ ...prev, name: undefined }))
                   }}
-                  className="bg-zinc-700 px-3 py-2 rounded w-full"
+                  className="bg-zinc-700 px-3 py-2 rounded w-full focus:outline-none"
                 />
                 {errors.name && (
                   <p className="text-red-400 text-xs mt-1">{errors.name}</p>
@@ -227,7 +227,7 @@ export default function BookingPage({
                     setEmail(e.target.value)
                     setErrors((prev) => ({ ...prev, email: undefined }))
                   }}
-                  className="bg-zinc-700 px-3 py-2 rounded w-full"
+                  className="bg-zinc-700 px-3 py-2 rounded w-full focus:outline-none"
                 />
                 {errors.email && (
                   <p className="text-red-400 text-xs mt-1">{errors.email}</p>

@@ -91,31 +91,46 @@ export default function SchedulePage() {
           </div>
 
           <div className="flex items-center gap-4">
-
             <button
-              className="flex rounded-lg bg-blue-600 hover:bg-blue-500 text-white px-2 py-1 rounded shadow"
               onClick={() => setLinkModalOpen(true)}
+              className="
+                px-2 py-1 rounded-xl
+                border border-zinc-600 text-zinc-300
+                hover:bg-zinc-700
+                active:scale-95
+                transition-all duration-150
+              " 
             >
               予約リンクを作成
             </button>
 
             <button
-              className="flex rounded-lg bg-blue-600 hover:bg-blue-500 text-white px-2 py-1 shadow"
+              className="
+                px-2 py-1 rounded-xl
+                border border-zinc-600 text-zinc-300
+                hover:bg-zinc-700
+                active:scale-95
+                transition-all duration-150
+              " 
               onClick={() => setBookingModalOpen(true)}
             >
               予定を追加
             </button>
 
-            <div className="flex rounded-lg border border-zinc-600 overflow-hidden text-sm">
+            <div className="flex rounded-xl bg-zinc-800 p-1 text-sm">
               {["day", "week", "month"].map((m) => (
                 <button
                   key={m}
                   onClick={() => setMode(m as any)}
-                  className={`px-4 py-1 capitalize ${
-                    mode === m
-                      ? "bg-blue-600 text-white"
-                      : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"
-                  }`}
+                  className={`
+                    flex-1 px-4 py-1.5 rounded-lg capitalize
+                    transition-all duration-150
+                    ${
+                      mode === m
+                        ? "bg-zinc-700 text-white shadow-sm"
+                        : "text-zinc-400 hover:text-white"
+                    }
+                  `}
                 >
                   {m}
                 </button>

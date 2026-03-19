@@ -123,7 +123,7 @@ export default function EventModal({
       onClick={onClose}
     >
       <div
-        className="w-[440px] rounded-2xl bg-zinc-900 border border-zinc-700 shadow-2xl"
+        className="w-[440px] rounded-2xl bg-zinc-800 border border-zinc-700 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
 
@@ -141,7 +141,7 @@ export default function EventModal({
                   updateField("title", e.target.value)
                   setErrors((prev) => ({ ...prev, title: undefined }))
                 }}
-                className="bg-zinc-800 px-3 py-1.5 rounded w-full text-white"
+                className="bg-zinc-800 px-3 py-1.5 rounded w-full text-white border border-zinc-600 focus:outline-none"
               />
             )}
 
@@ -181,7 +181,7 @@ export default function EventModal({
                   type="date"
                   value={form.date}
                   onChange={(e) => updateField("date", e.target.value)}
-                  className="bg-zinc-700 p-2 rounded text-sm"
+                  className="bg-zinc-700 p-2 rounded text-sm focus:outline-none"
                 />
               
                 <input
@@ -191,7 +191,7 @@ export default function EventModal({
                     updateField("start", e.target.value)
                     setErrors((prev) => ({ ...prev, time: undefined }))
                   }}
-                  className="bg-zinc-700 p-2 rounded text-sm"
+                  className="bg-zinc-700 p-2 rounded text-sm focus:outline-none"
                 />
 
                 <input
@@ -201,7 +201,7 @@ export default function EventModal({
                     updateField("end", e.target.value)
                     setErrors((prev) => ({ ...prev, time: undefined }))
                   }}
-                  className="bg-zinc-700 p-2 rounded text-sm"
+                  className="bg-zinc-700 p-2 rounded text-sm focus:outline-none"
                 />
               </div>
                 <p className="text-zinc-400 text-xs mt-1">
@@ -234,7 +234,7 @@ export default function EventModal({
                     updateField("guest_name", e.target.value)
                   }
                   placeholder="名前"
-                  className="w-full bg-zinc-800 p-2 rounded"
+                  className="w-full bg-zinc-800 p-2 rounded border border-zinc-600 focus:outline-none"
                 />
 
                 <input
@@ -245,7 +245,7 @@ export default function EventModal({
                   }
                   }
                   placeholder="メール"
-                  className="w-full bg-zinc-800 p-2 rounded"
+                  className="w-full bg-zinc-800 p-2 rounded border border-zinc-600 focus:outline-none"
                 />
                 <p className="text-zinc-400 text-xs mt-1">
                   {errors.guest_email}
@@ -281,7 +281,7 @@ export default function EventModal({
                   setErrors((prev) => ({ ...prev, url: undefined }))
                 }}
                 placeholder="https://meet.google.com/..."
-                className="w-full bg-zinc-800 p-2 rounded"
+                className="w-full bg-zinc-800 p-2 rounded border border-zinc-600 focus:outline-none"
               />
             )}
             <p className="text-zinc-400 text-xs mt-1">
@@ -299,14 +299,26 @@ export default function EventModal({
             <>
               <button
                 onClick={handleDelete}
-                className="text-red-400 hover:text-red-300 text-sm"
+                className="
+                  px-2 py-1 rounded-xl
+                  border border-red-600 text-red-300
+                  hover:bg-zinc-700
+                  active:scale-95
+                  transition-all duration-150
+                " 
               >
                 削除
               </button>
 
               <button
                 onClick={() => setEditMode(true)}
-                className="px-4 py-1.5 bg-blue-600 rounded-md text-sm hover:bg-blue-500"
+                className="
+                  px-2 py-1 rounded-xl
+                  border border-blue-600 text-blue-300
+                  hover:bg-zinc-700
+                  active:scale-95
+                  transition-all duration-150
+                " 
               >
                 編集
               </button>
@@ -322,7 +334,13 @@ export default function EventModal({
 
               <button
                 onClick={handleUpdate}
-                className="px-4 py-1.5 bg-blue-600 rounded-md text-sm hover:bg-blue-500"
+                className="
+                  px-2 py-1 rounded-xl
+                  border border-blue-600 text-blue-300
+                  hover:bg-zinc-700
+                  active:scale-95
+                  transition-all duration-150
+                " 
               >
                 保存
               </button>
