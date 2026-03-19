@@ -16,8 +16,8 @@ export const bookingLinkSchema = v.pipe(
 
     days: v.pipe(
       v.number(),
-      v.minValue(1, "1〜365で入力してください"),
-      v.maxValue(365, "1〜365で入力してください")
+      v.minValue(1, "1〜90で入力してください"),
+      v.maxValue(90, "1〜90で入力してください")
     ),
 
     startTime: v.string(),
