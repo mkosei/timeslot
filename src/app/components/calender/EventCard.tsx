@@ -1,4 +1,5 @@
 import { Event } from "@/app/types/type"
+import { getEventColor } from "@/app/lib/color"
 
 export default function EventCard({
   event,
@@ -11,9 +12,16 @@ export default function EventCard({
   height: number
   onSelect: (event: Event) => void
 }) {
+
+  const color = getEventColor(event.guest_name || event.title)
+
   return (
     <div
-      className="absolute left-2 right-2 rounded-xl bg-blue-600 p-2 text-white shadow hover:bg-blue-500 transition"
+      className={`
+        absolute left-2 right-2 rounded-xl p-2 shadow transition cursor-pointer
+        border-l-4 ${color.bg} ${color.text} ${color.border}
+        hover:opacity-80
+      `}
       style={{ top, height }}
       onClick={() => onSelect(event)}
     >

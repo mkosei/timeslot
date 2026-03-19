@@ -1,5 +1,6 @@
 import dayjs, { Dayjs } from "dayjs"
 import { Event } from "@/app/types/type"
+import { getEventColor } from "@/app/lib/color"
 
 type Props = {
   events: Event[]
@@ -24,24 +25,31 @@ export default function MonthView({ events, onSelectDate }: Props) {
 
           {/* その日のイベント */}
           {events
-            .filter((e) => dayjs(e.date).isSame(day, "day")) // ← 日付ベースで比較
-            .map((e) => (
-              <div
-                key={e.id}
-                className="group mt-1 truncate rounded bg-blue-600 px-1 py-0.5 text-[10px] relative"
-              >
-                {e.title}
+            .filter((e) => dayjs(e.date).isSame(day, "day"))
+            .map((e) => {
+              const color = getEventColor(e.guest_name || e.title)
 
-                {/* ホバーツールチップ */}
-                <div className="pointer-events-none absolute left-1/2 top-full z-20 mt-1 w-40 -translate-x-1/2 rounded-lg bg-zinc-900 p-2 text-xs text-white opacity-0 shadow-lg transition group-hover:opacity-100 border border-zinc-700">
-                  <div className="font-semibold">{e.title}</div>
-                  <div className="text-zinc-400">{e.guest_name}</div>
-                  <div className="text-zinc-500">
-                    {e.start} - {e.end}
+              return (
+                <div
+                  key={e.id}
+                  className={`
+                    group mt-1 truncate rounded px-1 py-0.5 text-[10px] relative
+                    border-l-2 ${color.bg} ${color.text} ${color.border}
+                  `}
+                >
+                  {e.title}
+
+                  {/* ホバーツールチップ */}
+                  <div className="pointer-events-none absolute left-1/2 top-full z-20 mt-1 w-40 -translate-x-1/2 rounded-lg bg-zinc-900 p-2 text-xs text-white opacity-0 shadow-lg transition group-hover:opacity-100 border border-zinc-700">
+                    <div className="font-semibold">{e.title}</div>
+                    <div className="text-zinc-400">{e.guest_name}</div>
+                    <div className="text-zinc-500">
+                      {e.start} - {e.end}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
         </div>
       ))}
     </div>

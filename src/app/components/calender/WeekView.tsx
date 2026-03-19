@@ -2,6 +2,7 @@
 
 import { Event } from "@/app/types/type"
 import dayjs, { Dayjs } from "dayjs"
+import { getEventColor } from "@/app/lib/color"
 
 const hours = Array.from({ length: 24 }, (_, i) => (i + 8) % 24)
 
@@ -67,43 +68,49 @@ export default function WeekView({
               <div key={hour} className="h-20" />
             ))}
 
-            {events
-              .filter((e) => dayjs(e.date).isSame(day, "day"))
-              .map((event) => {
+{events
+  .filter((e) => dayjs(e.date).isSame(day, "day"))
+  .map((event) => {
 
-                const startHour = parseInt(event.start.split(":")[0])
-                const startMin = parseInt(event.start.split(":")[1])
-                const endHour = parseInt(event.end.split(":")[0])
-                const endMin = parseInt(event.end.split(":")[1])
+    const color = getEventColor(event.guest_name || event.title)
 
-                const adjustedStart = startHour >= 8 ? startHour - 8 : startHour + 16
-                const top = adjustedStart * 80 + (startMin / 60) * 80
+    const startHour = parseInt(event.start.split(":")[0])
+    const startMin = parseInt(event.start.split(":")[1])
+    const endHour = parseInt(event.end.split(":")[0])
+    const endMin = parseInt(event.end.split(":")[1])
 
-                const duration = ((endHour - startHour) * 60 + (endMin - startMin))
-                const height = (duration / 60) * 80
+    const adjustedStart = startHour >= 8 ? startHour - 8 : startHour + 16
+    const top = adjustedStart * 80 + (startMin / 60) * 80
 
-                return (
-                  <div
-                    key={event.id}
-                    className="group absolute left-2 right-2 rounded-xl bg-blue-600 p-2 text-white shadow hover:bg-blue-500 transition cursor-pointer"
-                    style={{ top, height }}
-                    onClick={() => onSelectEvent(event)}
-                  >
-                    <div className="text-sm font-semibold truncate">
-                      {event.title}
-                    </div>
+    const duration = ((endHour - startHour) * 60 + (endMin - startMin))
+    const height = (duration / 60) * 80
 
-                    {/* Tooltip */}
-                    <div className="pointer-events-none absolute left-1/2 top-full z-20 mt-2 w-48 -translate-x-1/2 rounded-lg bg-zinc-900 p-3 text-xs opacity-0 shadow-xl transition group-hover:opacity-100 border border-zinc-700">
-                      <div className="font-semibold">{event.title}</div>
-                      <div className="text-zinc-400">{event.guest_name}</div>
-                      <div className="text-zinc-500">
-                        {event.start} - {event.end}
-                      </div>
-                    </div>
-                  </div>
-                )
-              })}
+    return (
+      <div
+        key={event.id}
+        className={`
+          group absolute left-2 right-2 rounded-xl p-2 shadow transition cursor-pointer
+          border-l-4 ${color.bg} ${color.text} ${color.border}
+          hover:opacity-80
+        `}
+        style={{ top, height }}
+        onClick={() => onSelectEvent(event)}
+      >
+        <div className="text-sm font-semibold truncate">
+          {event.title}
+        </div>
+
+        {/* Tooltip */}
+        <div className="pointer-events-none absolute left-1/2 top-full z-20 mt-2 w-48 -translate-x-1/2 rounded-lg bg-zinc-900 p-3 text-xs opacity-0 shadow-xl transition group-hover:opacity-100 border border-zinc-700">
+          <div className="font-semibold">{event.title}</div>
+          <div className="text-zinc-400">{event.guest_name}</div>
+          <div className="text-zinc-500">
+            {event.start} - {event.end}
+          </div>
+        </div>
+      </div>
+    )
+  })}
           </div>
         ))}
       </div>
