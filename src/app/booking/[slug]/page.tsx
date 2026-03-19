@@ -2,6 +2,7 @@
 
 import { useEffect, useState, use } from "react"
 import dayjs from "dayjs"
+import { sanitize, isValidEmail } from "@/app/lib/valid"
 
 type Slot = {
   start: string
@@ -26,6 +27,12 @@ export default function BookingPage({
   const [email, setEmail] = useState("")
   const [loading, setLoading] = useState(false)
   const [done, setDone] = useState(false)
+
+  const [errors, setErrors] = useState<{
+    name?: string
+    email?: string
+    slot?: string
+  }>({})
 
   const { slug } = use(params)
 
@@ -58,7 +65,28 @@ export default function BookingPage({
 
   // 予約
   const handleBooking = async () => {
-    if (!selectedSlot) return
+    const safeName = sanitize(name.trim())
+    const safeEmail = sanitize(email.trim())
+
+    const newErrors: typeof errors = {}
+
+    if (!selectedSlot) {
+      newErrors.slot = "時間を選択してください"
+    }
+
+    if (!safeName) {
+      newErrors.name = "名前は必須です"
+    }
+
+    if (!safeEmail) {
+      newErrors.email = "メールは必須です"
+    } else if (!isValidEmail(safeEmail)) {
+      newErrors.email = "メール形式が不正です"
+    }
+
+    setErrors(newErrors)
+
+    if (Object.keys(newErrors).length > 0) return
 
     setLoading(true)
     try {
@@ -69,10 +97,10 @@ export default function BookingPage({
         },
         body: JSON.stringify({
           title: title,
-          start: selectedSlot.start,
-          end: selectedSlot.end,
-          guest_name: name,
-          guest_email: email
+          start: selectedSlot!.start,
+          end: selectedSlot!.end,
+          guest_name: safeName,
+          guest_email: safeEmail
         })
       })
 
@@ -109,19 +137,20 @@ export default function BookingPage({
           {title}の予約
         </h1>
 
-        <div className="grid grid-cols-3 gap-6 h-[500px]">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-auto md:h-[500px]">
 
           {/* 日付 */}
           <div className="flex flex-col min-h-0">
             <h3 className="text-sm text-zinc-400 mb-2">日付</h3>
 
-            <div className="flex-1 flex flex-col gap-2 overflow-y-auto pr-1">
+            <div className="flex-1 flex flex-col gap-2 overflow-y-auto pr-1 max-h-[200px] md:max-h-none">
               {dates.map((d) => (
                 <button
                   key={d}
                   onClick={() => {
                     setSelectedDate(d)
                     setSelectedSlot(null)
+                    setErrors((prev) => ({ ...prev, slot: undefined }))
                   }}
                   className={`px-3 py-2 rounded text-sm text-left transition
                   ${
@@ -146,11 +175,18 @@ export default function BookingPage({
               </p>
             )}
 
-            <div className="flex-1 grid grid-cols-2 gap-2 overflow-y-auto pr-1">
+            {errors.slot && (
+              <p className="text-red-400 text-xs mb-2">{errors.slot}</p>
+            )}
+
+            <div className="flex-1 grid grid-cols-2 gap-2 overflow-y-auto pr-1 max-h-[200px] md:max-h-none">
               {filteredSlots.map((s) => (
                 <button
                   key={s.start}
-                  onClick={() => setSelectedSlot(s)}
+                  onClick={() => {
+                    setSelectedSlot(s)
+                    setErrors((prev) => ({ ...prev, slot: undefined }))
+                  }}
                   className={`px-3 py-2 rounded text-sm transition text-center
                   ${
                     selectedSlot?.start === s.start
@@ -170,26 +206,38 @@ export default function BookingPage({
               あなたの情報
             </h3>
 
-            {!selectedSlot && (
-              <p className="text-zinc-500 text-sm mb-2">
-                時間を選択
-              </p>
-            )}
-
             <div className="flex flex-col gap-3">
-              <input
-                placeholder="名前"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="bg-zinc-700 px-3 py-2 rounded"
-              />
 
-              <input
-                placeholder="メール"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="bg-zinc-700 px-3 py-2 rounded"
-              />
+              <div>
+                <input
+                  placeholder="名前"
+                  value={name}
+                  onChange={(e) => {
+                    setName(e.target.value)
+                    setErrors((prev) => ({ ...prev, name: undefined }))
+                  }}
+                  className="bg-zinc-700 px-3 py-2 rounded w-full"
+                />
+                {errors.name && (
+                  <p className="text-red-400 text-xs mt-1">{errors.name}</p>
+                )}
+              </div>
+
+              <div>
+                <input
+                  placeholder="メール"
+                  type="email"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value)
+                    setErrors((prev) => ({ ...prev, email: undefined }))
+                  }}
+                  className="bg-zinc-700 px-3 py-2 rounded w-full"
+                />
+                {errors.email && (
+                  <p className="text-red-400 text-xs mt-1">{errors.email}</p>
+                )}
+              </div>
 
               <button
                 onClick={handleBooking}
@@ -198,6 +246,7 @@ export default function BookingPage({
               >
                 {loading ? "予約中..." : "予約する"}
               </button>
+
             </div>
           </div>
 
