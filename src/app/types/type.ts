@@ -52,3 +52,41 @@ export type FormState = {
 export type CreateLinkResponse = {
   slug: string
 }
+
+export type UpdateBookingInput = {
+  id: number
+  title: string
+  guest_name: string
+  guest_email: string
+  start: string
+  end: string
+  meet_url: string
+}
+
+
+//link
+export type BookingPageData = {
+  title: string
+  slots: {
+    start: string
+    end: string
+  }[]
+}
+
+export type CreateLinkInput = {
+  title: string
+  duration: number
+  days_ahead: number
+  start_time: string
+  end_time: string
+  meet_url: string | null
+}
+
+export type BookingFromLink = {
+  title: string,
+  start: string,
+  end: string,
+  guest_name: string,
+  guest_email: string
+}
+
