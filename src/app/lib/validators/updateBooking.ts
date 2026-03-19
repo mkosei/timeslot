@@ -1,4 +1,3 @@
-// lib/validators/updateBooking.ts
 import * as v from "valibot"
 
 export const updateBookingSchema = v.pipe(

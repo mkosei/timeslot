@@ -1,4 +1,3 @@
-// lib/validators/format.ts
 import * as v from "valibot"
 
 export const formatErrors = (issues: v.BaseIssue<unknown>[]) => {
