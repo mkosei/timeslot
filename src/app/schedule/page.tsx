@@ -12,6 +12,7 @@ import { fetchSession } from "../services/authService"
 import type { BookingResponse, Event } from "../types/type"
 import EventModal from "../components/booking/EventDetailModal"
 import CreateLinkModal from "../components/booking/BookingLinkModal"
+import LoginModal from "../components/auth/LoginModal"
 
 
 export default function SchedulePage() {
@@ -183,6 +184,7 @@ export default function SchedulePage() {
         onClose={() => setSelectedEvent(null)}
         onUpdated={load}
       />
+      <LoginModal open={!loading && !session?.user} />
     </div> 
   )
 }
