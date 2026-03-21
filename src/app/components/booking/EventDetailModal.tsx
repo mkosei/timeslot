@@ -43,13 +43,12 @@ export default function EventModal({
     url: ""
   })
 
-  // event同期
   useEffect(() => {
     if (event) {
       setForm({
         title: event.title,
-        guest_name: event.guest_name,
-        guest_email: event.guest_email,
+        guest_name: event.guest_name ?? "",   // ← null を "" に
+        guest_email: event.guest_email ?? "", // ← null を "" に
         date: event.date,
         start: event.start,
         end: event.end,
@@ -240,7 +239,7 @@ export default function EventModal({
                 <input
                   value={form.guest_email}
                   onChange={(e) => {
-                    updateField("guest_name", e.target.value)
+                    updateField("guest_email", e.target.value)
                     setErrors((prev) => ({ ...prev, guest_email: undefined }))
                   }
                   }
