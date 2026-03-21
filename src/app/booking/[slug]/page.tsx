@@ -52,14 +52,14 @@ export default function BookingPage({
     fetchSlots()
   }, [slug])
 
-  // 日付一覧
+
   const dates = useMemo(() => {
     return Array.from(
       new Set(slots.map((s) => dayjs(s.start).format("YYYY-MM-DD")))
     )
   }, [slots])
 
-  // 選択日のスロット
+
   const filteredSlots = slots.filter(
     (s) =>
       selectedDate &&
@@ -69,7 +69,7 @@ export default function BookingPage({
   const handleBooking = async () => {
     const result = v.safeParse(bookingFromLinkSchema, { name, email })
 
-    // エラー処理（全部ここで終わらせる）
+
     if (!result.success || !selectedSlot) {
       setErrors({
         ...(!result.success ? formatErrors(result.issues) : {}),
@@ -171,7 +171,7 @@ export default function BookingPage({
             )}
 
             {errors.slot && (
-              <p className="text-red-400 text-xs mb-2">{errors.slot}</p>
+              <p className="text-zinc-400 text-xs mb-2">{errors.slot}</p>
             )}
 
             <div className="flex-1 grid grid-cols-2 gap-2 overflow-y-auto pr-1 max-h-[200px] md:max-h-none">
@@ -214,7 +214,7 @@ export default function BookingPage({
                   className="bg-zinc-700 px-3 py-2 rounded w-full focus:outline-none"
                 />
                 {errors.name && (
-                  <p className="text-red-400 text-xs mt-1">{errors.name}</p>
+                  <p className="text-zinc-400 text-xs mt-1">{errors.name}</p>
                 )}
               </div>
 
@@ -230,7 +230,7 @@ export default function BookingPage({
                   className="bg-zinc-700 px-3 py-2 rounded w-full focus:outline-none"
                 />
                 {errors.email && (
-                  <p className="text-red-400 text-xs mt-1">{errors.email}</p>
+                  <p className="text-zinc-400 text-xs mt-1">{errors.email}</p>
                 )}
               </div>
 

@@ -17,7 +17,7 @@ export default function MonthView({ events, onSelectDate }: Props) {
       {days.map((day, i) => (
         <div
           key={i}
-          className="relative h-32 border-t border-zinc-700 p-2 text-xs bg-zinc-800 cursor-pointer"
+          className="relative h-32 border-t border-zinc-700 p-2 text-xs bg-zinc-900 cursor-pointer"
           onClick={() => onSelectDate(day)}
         >
           {/* 日付 */}

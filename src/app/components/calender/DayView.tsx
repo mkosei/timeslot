@@ -24,7 +24,7 @@ export default function DayView({
     <div className="grid grid-cols-[70px_1fr] min-h-screen">
       
       {/* 時間軸 */}
-      <div className="border-r border-zinc-700 bg-zinc-800">
+      <div className="border-r border-zinc-900 bg-zinc-900">
         {hours.map((hour) => (
           <div
             key={hour}
@@ -36,7 +36,7 @@ export default function DayView({
       </div>
 
       {/* カレンダー */}
-      <div className="relative flex-1 bg-zinc-800">
+      <div className="relative flex-1 bg-zinc-900">
 
         {hours.map((h) => (
           <div key={h} className="h-20" />

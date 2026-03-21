@@ -67,7 +67,7 @@ export default function SchedulePage() {
 
   return (
     <div className="min-h-screen bg-zinc-900 text-zinc-100 p-8">
-      <div className="mx-auto max-w-7xl rounded-2xl border border-zinc-700 bg-zinc-800 shadow-xl">
+      <div className="mx-auto max-w-7xl rounded-2xl border border-zinc-700 bg-zinc-900 shadow-xl">
         {/* header */}
         <div className="flex items-center justify-between border-b border-zinc-700 px-6 py-4">
 

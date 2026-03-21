@@ -25,7 +25,7 @@ export default function WeekView({
   return (
     <div className="overflow-x-auto">
       {/* Week Header */}
-      <div className="grid grid-cols-[70px_repeat(7,1fr)] bg-zinc-800">
+      <div className="grid grid-cols-[70px_repeat(7,1fr)] bg-zinc-900">
         <div />
         {week.map((day, i) => (
           <div
