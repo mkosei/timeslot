@@ -1,9 +1,8 @@
 import { Hono } from "hono";
-import { initAuthConfig, authHandler, verifyAuth } from '@hono/auth-js';
+import { initAuthConfig, authHandler } from '@hono/auth-js';
 import Google from '@auth/core/providers/google'
 import { HTTPException } from 'hono/http-exception'
 import { cors } from "hono/cors"
-import { ensureUser } from "./middleware/ensureUser";
 import bookingsRoute from "./routes/bookings"
 
 // ★D1 データベースの型定義
@@ -12,36 +11,45 @@ type CloudflareBindings = {
   AUTH_SECRET: string
   AUTH_GOOGLE_ID: string
   AUTH_GOOGLE_SECRET: string
+  APP_URL: string 
 };
 
 export const app = new Hono<{ Bindings: CloudflareBindings }>();
 
-app.use(
-  "*",
-  cors({
-    origin: "http://localhost:3000",
+app.use("*", (c, next) => {
+  return cors({
+    origin: c.env.APP_URL,
     credentials: true,
-  })
-)
+  })(c, next)
+})
 
 app.use(
   '*',
   initAuthConfig((c) => ({
     secret: c.env.AUTH_SECRET,
-    rustHost: true,
+    trustHost: true,
+    basePath: '/api/auth',
     providers: [
       Google({
         clientId: c.env.AUTH_GOOGLE_ID,
         clientSecret: c.env.AUTH_GOOGLE_SECRET,
       }),
     ],
+    callbacks: {
+      jwt({ token, account, profile }) {
+        if (account && profile?.sub) {
+          token.sub = profile.sub
+        }
+        return token
+      },
+    }
   }))
 )
 
 app.use('/api/auth/*', authHandler())
 
 app.get("/", (c) => {
-  return c.redirect("http://localhost:3000/schedule")
+  return c.redirect(c.env.APP_URL + "/schedule")
 })
 
 app.route("/api/bookings", bookingsRoute)
