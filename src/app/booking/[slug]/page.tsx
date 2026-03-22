@@ -150,7 +150,7 @@ export default function BookingPage({
                   className={`px-3 py-2 rounded text-sm text-left transition
                   ${
                     selectedDate === d
-                      ? "bg-blue-600 shadow-md"
+                      ? "bg-violet-500 shadow-md"
                       : "bg-zinc-700 hover:bg-zinc-600"
                   }`}
                 >
@@ -185,7 +185,7 @@ export default function BookingPage({
                   className={`px-3 py-2 rounded text-sm transition text-center
                   ${
                     selectedSlot?.start === s.start
-                      ? "bg-blue-600 shadow-md"
+                      ? "bg-violet-500 shadow-md"
                       : "bg-zinc-700 hover:bg-zinc-600"
                   }`}
                 >
@@ -237,7 +237,7 @@ export default function BookingPage({
               <button
                 onClick={handleBooking}
                 disabled={!selectedSlot || loading}
-                className="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded disabled:opacity-50"
+                className="bg-violet-500 hover:bg-violet-400 px-4 py-2 rounded disabled:opacity-50"
               >
                 {loading ? "予約中..." : "予約する"}
               </button>
