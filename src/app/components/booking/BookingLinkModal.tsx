@@ -6,13 +6,15 @@ import { formatErrors } from "@/app/lib/validators/format"
 import * as v from "valibot"
 import { APP_URL } from "@/app/lib/config"
 import { createBookingLink } from "@/app/services/bookingLinkService"
+import { Session } from "next-auth"
 
 type Props = {
   open: boolean
   onClose: () => void
+  session: Session | null
 }
 
-export default function CreateLinkModal({ open, onClose }: Props) {
+export default function CreateLinkModal({ open, onClose, session }: Props) {
   const [title, setTitle] = useState("")
   const [duration, setDuration] = useState(30)
   const [days, setDays] = useState(7)
@@ -61,7 +63,7 @@ const handleCreate = async () => {
   setLoading(true)
 
   try {
-    const res = await createBookingLink({
+    const res = await createBookingLink(session, {
       title: data.title,
       duration: data.duration,
       days_ahead: data.days,

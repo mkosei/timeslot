@@ -8,18 +8,17 @@ import UserMenu from "@/app/components/calender/UserMenu"
 import BookingModal from "@/app/components/booking/BookingModal"
 import dayjs, { Dayjs } from "dayjs"
 import { fetchBookings } from "../services/bookingService"
-import { fetchSession } from "../services/authService"
 import type { BookingResponse, Event } from "../types/type"
 import EventModal from "../components/booking/EventDetailModal"
 import CreateLinkModal from "../components/booking/BookingLinkModal"
 import LoginModal from "../components/auth/LoginModal"
-
+import { useSession } from "next-auth/react"
 
 export default function SchedulePage() {
+  const { data: session, status } = useSession()
+  const loading = status === "loading"
   const [mode, setMode] = useState<"day" | "week" | "month">("day")
   const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs())
-  const [session, setSession] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
   const [events, setEvents] = useState<Event[]>([])
   const [bookingModalOpen, setBookingModalOpen] = useState(false)
   const [linkModalOpen, setLinkModalOpen] = useState(false)
@@ -40,26 +39,14 @@ export default function SchedulePage() {
   }
 
   const load = useCallback(async () => {
+    if (!session?.user) return
     try {
-      setLoading(true)
-
-      const [sessionData, bookingsData] = await Promise.all([
-        fetchSession(),
-        fetchBookings()
-      ])
-
-      setSession(sessionData)
-
-      if (sessionData?.user) {
-        setEvents(formatBookings(bookingsData))
-      }
-
+      const bookingsData = await fetchBookings(session)
+      setEvents(formatBookings(bookingsData))
     } catch (err) {
       console.error(err)
-    } finally {
-      setLoading(false)
     }
-  }, [])
+  }, [session])
 
   useEffect(() => {
     load()
@@ -68,13 +55,9 @@ export default function SchedulePage() {
   return (
     <div className="min-h-screen bg-zinc-900 text-zinc-100 p-8">
       <div className="mx-auto max-w-7xl rounded-2xl border border-zinc-700 bg-zinc-900 shadow-xl">
-        {/* header */}
         <div className="flex items-center justify-between border-b border-zinc-700 px-6 py-4">
-
           <div className="flex flex-col gap-1">
             <h1 className="text-lg font-semibold">TimeSlot</h1>
-            
-            {/* 日付表示 */}
             <div className="flex items-center gap-2 text-sm text-zinc-400">
               <button
                 onClick={() => setSelectedDate(dayjs())}
@@ -94,44 +77,24 @@ export default function SchedulePage() {
           <div className="flex items-center gap-4">
             <button
               onClick={() => setLinkModalOpen(true)}
-              className="
-                px-2 py-1 rounded-xl
-                border border-zinc-600 text-zinc-300
-                hover:bg-zinc-700
-                active:scale-95
-                transition-all duration-150
-              " 
+              className="px-2 py-1 rounded-xl border border-zinc-600 text-zinc-300 hover:bg-zinc-700 active:scale-95 transition-all duration-150"
             >
               予約リンクを作成
             </button>
-
             <button
-              className="
-                px-2 py-1 rounded-xl
-                border border-zinc-600 text-zinc-300
-                hover:bg-zinc-700
-                active:scale-95
-                transition-all duration-150
-              " 
+              className="px-2 py-1 rounded-xl border border-zinc-600 text-zinc-300 hover:bg-zinc-700 active:scale-95 transition-all duration-150"
               onClick={() => setBookingModalOpen(true)}
             >
               予定を追加
             </button>
-
             <div className="flex rounded-xl bg-zinc-800 p-1 text-sm">
               {["day", "week", "month"].map((m) => (
                 <button
                   key={m}
                   onClick={() => setMode(m as any)}
-                  className={`
-                    flex-1 px-4 py-1.5 rounded-lg capitalize
-                    transition-all duration-150
-                    ${
-                      mode === m
-                        ? "bg-zinc-700 text-white shadow-sm"
-                        : "text-zinc-400 hover:text-white"
-                    }
-                  `}
+                  className={`flex-1 px-4 py-1.5 rounded-lg capitalize transition-all duration-150 ${
+                    mode === m ? "bg-zinc-700 text-white shadow-sm" : "text-zinc-400 hover:text-white"
+                  }`}
                 >
                   {m}
                 </button>
@@ -141,50 +104,26 @@ export default function SchedulePage() {
           </div>
         </div>
 
-
-        {/* View切り替え */}
-        {mode === "day" && 
-          <DayView
-            events={events}
-            selectedDate={selectedDate}
-            onSelectEvent={setSelectedEvent}
-          />
-        }
-        {mode === "week" && 
-        <WeekView 
-          events={events} 
-          baseDate={selectedDate} 
-          onSelectEvent={setSelectedEvent}
-        />
-        }
-        {mode === "month" &&           
-          <MonthView
-            events={events}
-            onSelectDate={(date: any) => {
-              setSelectedDate(date)
-              setMode("day") // 選択したら DayView に切り替える
-            }}
-           />}
+        {mode === "day" && <DayView events={events} selectedDate={selectedDate} onSelectEvent={setSelectedEvent} />}
+        {mode === "week" && <WeekView events={events} baseDate={selectedDate} onSelectEvent={setSelectedEvent} />}
+        {mode === "month" && <MonthView events={events} onSelectDate={(date: any) => { setSelectedDate(date); setMode("day") }} />}
       </div>
+
       <BookingModal
         open={bookingModalOpen}
         onClose={() => setBookingModalOpen(false)}
-        onBooked={() => {
-          setBookingModalOpen(false)
-          load();
-        }}
+        onBooked={() => { setBookingModalOpen(false); load() }}
+        session={session}
       />
-      <CreateLinkModal
-        open={linkModalOpen}
-        onClose={() => setLinkModalOpen(false)}
-      />
+      <CreateLinkModal open={linkModalOpen} onClose={() => setLinkModalOpen(false)} session={session}/>
       <EventModal
         event={selectedEvent}
         open={!!selectedEvent}
         onClose={() => setSelectedEvent(null)}
         onUpdated={load}
+        session={session}
       />
       <LoginModal open={!loading && !session?.user} />
-    </div> 
+    </div>
   )
 }

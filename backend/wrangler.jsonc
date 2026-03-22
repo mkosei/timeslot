@@ -16,7 +16,7 @@
 	// ],
 	"vars": {
 	//   "MY_VAR": "my-variable"
-		"APP_URL": "https://timeslot-kohl.vercel.app" 
+		"APP_URL": "https://timeslot-kohl.vercel.app"
 	},
 	// "kv_namespaces": [
 	//   {

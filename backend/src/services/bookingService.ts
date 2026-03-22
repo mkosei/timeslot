@@ -3,8 +3,7 @@ import type { AppContext } from "../types/type"
 import { bookingSchema } from "../lib/validator"
 
 export function getUserId(c: AppContext): string | null {
-  const sub = c.get("authUser")?.token?.sub
-  return sub ? `g_${String(sub)}` : null
+  return c.req.header("x-user-id") ?? null
 }
 
 export const fetchBookings = async (c: AppContext) => {

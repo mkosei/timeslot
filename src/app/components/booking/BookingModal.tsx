@@ -6,14 +6,16 @@ import { createBooking } from "@/app/services/bookingService"
 import * as v from "valibot"
 import { createBookingSchema } from "@/app/lib/validators/booking"
 import { formatErrors } from "@/app/lib/validators/format"
+import { Session } from "next-auth"
 
 type Props = {
   open: boolean
   onClose: () => void
   onBooked: () => void
+  session: Session | null
 }
 
-export default function BookingModal({ open, onClose, onBooked }: Props) {
+export default function BookingModal({ open, onClose, onBooked, session }: Props) {
 
   const [title, setTitle] = useState("")
   const [guestName, setGuestName] = useState("")
@@ -66,7 +68,7 @@ export default function BookingModal({ open, onClose, onBooked }: Props) {
       const start = dayjs(`${data.date}T${data.startTime}`).toISOString()
       const end = dayjs(`${data.date}T${data.endTime}`).toISOString()
 
-      await createBooking({
+      await createBooking(session, {
         title: data.title,
         guest_name: data.guestName,
         guest_email: data.guestEmail ?? "",
