@@ -118,11 +118,11 @@ export default function EventModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-white/10"
       onClick={onClose}
     >
       <div
-        className="w-[440px] rounded-2xl bg-zinc-800 border border-zinc-700 shadow-2xl"
+        className="w-[440px] rounded-2xl bg-zinc-900 border border-zinc-700 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
 
@@ -140,7 +140,7 @@ export default function EventModal({
                   updateField("title", e.target.value)
                   setErrors((prev) => ({ ...prev, title: undefined }))
                 }}
-                className="bg-zinc-800 px-3 py-1.5 rounded w-full text-white border border-zinc-600 focus:outline-none"
+                className="bg-zinc-900 px-3 py-1.5 rounded w-full text-white border border-zinc-600 focus:outline-none"
               />
             )}
 
@@ -162,7 +162,7 @@ export default function EventModal({
 
         <div className="px-6 py-5 space-y-5">
 
-          <div className="bg-zinc-800 rounded-lg p-4 space-y-2">
+          <div className="bg-zinc-900 rounded-lg p-4 space-y-2">
 
             <p className="text-xs text-zinc-400 uppercase tracking-wide">
               日付と時間
@@ -180,7 +180,7 @@ export default function EventModal({
                   type="date"
                   value={form.date}
                   onChange={(e) => updateField("date", e.target.value)}
-                  className="bg-zinc-700 p-2 rounded text-sm focus:outline-none"
+                  className="bg-zinc-900 p-2 rounded border border-zinc-600 text-sm focus:outline-none"
                 />
               
                 <input
@@ -190,7 +190,7 @@ export default function EventModal({
                     updateField("start", e.target.value)
                     setErrors((prev) => ({ ...prev, time: undefined }))
                   }}
-                  className="bg-zinc-700 p-2 rounded text-sm focus:outline-none"
+                  className="bg-zinc-900 p-2 rounded border border-zinc-600 text-sm focus:outline-none"
                 />
 
                 <input
@@ -200,7 +200,7 @@ export default function EventModal({
                     updateField("end", e.target.value)
                     setErrors((prev) => ({ ...prev, time: undefined }))
                   }}
-                  className="bg-zinc-700 p-2 rounded text-sm focus:outline-none"
+                  className="bg-zinc-900 p-2 rounded border border-zinc-600 text-sm focus:outline-none"
                 />
               </div>
                 <p className="text-zinc-400 text-xs mt-1">
@@ -233,7 +233,7 @@ export default function EventModal({
                     updateField("guest_name", e.target.value)
                   }
                   placeholder="名前"
-                  className="w-full bg-zinc-800 p-2 rounded border border-zinc-600 focus:outline-none"
+                  className="w-full bg-zinc-900 p-2 rounded border border-zinc-600 focus:outline-none"
                 />
 
                 <input
@@ -244,7 +244,7 @@ export default function EventModal({
                   }
                   }
                   placeholder="メール"
-                  className="w-full bg-zinc-800 p-2 rounded border border-zinc-600 focus:outline-none"
+                  className="w-full bg-zinc-900 p-2 rounded border border-zinc-600 focus:outline-none"
                 />
                 <p className="text-zinc-400 text-xs mt-1">
                   {errors.guest_email}
@@ -280,7 +280,7 @@ export default function EventModal({
                   setErrors((prev) => ({ ...prev, url: undefined }))
                 }}
                 placeholder="https://meet.google.com/..."
-                className="w-full bg-zinc-800 p-2 rounded border border-zinc-600 focus:outline-none"
+                className="w-full bg-zinc-900 p-2 rounded border border-zinc-600 focus:outline-none"
               />
             )}
             <p className="text-zinc-400 text-xs mt-1">
