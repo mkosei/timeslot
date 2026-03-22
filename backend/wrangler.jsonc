@@ -16,12 +16,10 @@
 	// ],
 	"vars": {
 	//   "MY_VAR": "my-variable"
-		"AUTH_URL": "http://localhost:8787/api/auth",
-		//"AUTH_URL": "http://localhost:8787",
 		"AUTH_GOOGLE_ID": "219339611734-heue6fkqc9ahvhgc6192g8763ahgvc4p.apps.googleusercontent.com",
-		"AUTH_SECRET": "dev-secret",
-		"AUTH_GOOGLE_SECRET": "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"
-
+		"AUTH_SECRET": "pjIK9mvayj35PahFkp/WLcaDnLQ5IpmWmfa63yaOgEw=",
+		"AUTH_GOOGLE_SECRET": "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",
+		"APP_URL": "http://localhost:3000"
 	},
 	// "kv_namespaces": [
 	//   {

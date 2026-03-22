@@ -1,132 +1,108 @@
-import { Context } from "hono"
+import * as v from "valibot"
+import type { AppContext } from "../types/type"
+import { bookingSchema } from "../lib/validator"
 
-  export const fetchBookings = async (c: Context<{ Bindings: CloudflareBindings }>) => {
-    const auth = c.get("authUser")
-    const user = auth?.token
+export function getUserId(c: AppContext): string | null {
+  return c.get("authUser")?.token?.sub ?? null
+}
 
-    if (!user) {
-      return c.json({ error: "Unauthorized" }, 401)
-    }
+export const fetchBookings = async (c: AppContext) => {
+  const userId = getUserId(c)
+  if (!userId) return c.json({ error: "Unauthorized" }, 401)
 
-    const userId = user.sub
+  const { results } = await c.env.DB
+    .prepare(`
+      SELECT id, user_id, title, guest_name, guest_email, start, end, meet_url
+      FROM bookings
+      WHERE user_id = ?
+    `)
+    .bind(userId)
+    .all()
 
-    const { results } = await c.env.DB
-      .prepare(`
-        SELECT 
-          id,
-          user_id,
-          title,
-          guest_name,
-          guest_email,
-          start,
-          end,
-          meet_url
-        FROM bookings
-        WHERE user_id = ?
-      `)
-      .bind(userId)
-      .all()
+  return c.json(results)
+}
 
-    return c.json(results)
+export const createBooking = async (c: AppContext) => {
+  const userId = getUserId(c)
+  if (!userId) return c.json({ error: "Unauthorized" }, 401)
+
+  const parsed = v.safeParse(bookingSchema, await c.req.json())
+
+  if (!parsed.success) {
+    return c.json({ error: v.flatten(parsed.issues) }, 400)
   }
 
-  export const createBooking = async (c: Context<{ Bindings: CloudflareBindings }>) => {
-    try {
-      const auth = c.get("authUser")
-      const userId = auth?.token?.sub
-      const { title, guest_name, guest_email, start, end, meet_url} = await c.req.json();
-      if ( !userId || !title || !start || !end ) {
-          return c.json({ message: "Data is insufficient" }, 400); 
-      }
+  const { title, guest_name, guest_email, start, end, meet_url } = parsed.output
 
-      const result = await c.env.DB.prepare(
-        "INSERT INTO bookings (user_id, title, guest_name, guest_email, start, end, meet_url) VALUES (?, ?, ?, ?, ?, ?, ?)"
-      )
-      .bind(userId, title, guest_name, guest_email, start, end, meet_url || null) 
-      .run();
+  const result = await c.env.DB
+    .prepare(`
+      INSERT INTO bookings (user_id, title, guest_name, guest_email, start, end, meet_url)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `)
+    .bind(userId, title, guest_name ?? null, guest_email ?? null, start, end, meet_url ?? null)
+    .run()
 
-      const newBookingId = result.meta.last_row_id;
-      return c.json({ 
-        id: newBookingId, 
-        user_id: userId,
-        title: title, 
-        guest_name: guest_name, 
-        guest_email: guest_email, 
-        start: start,
-        end: end,
-        meet_url: meet_url
-      }, 201); 
-    } catch (error) {
-      throw error
-    }
+  return c.json({
+    id: result.meta.last_row_id,
+    user_id: userId,
+    title,
+    guest_name,
+    guest_email,
+    start,
+    end,
+    meet_url: meet_url ?? null,
+  }, 201)
+}
+
+export const updateBooking = async (c: AppContext) => {
+  const userId = getUserId(c)
+  if (!userId) return c.json({ error: "Unauthorized" }, 401)
+
+  const id = c.req.param("id")
+
+  const parsed = v.safeParse(bookingSchema, await c.req.json())
+  if (!parsed.success) {
+    return c.json({ error: v.flatten(parsed.issues) }, 400)
   }
 
-  export const updateBooking = async (c: Context<{ Bindings: CloudflareBindings }>) => {
-    try {
-      const id = c.req.param("id")
-      const body = await c.req.json()
+  const { title, guest_name, guest_email, start, end, meet_url } = parsed.output
 
-      const {
-        title,
-        guest_name,
-        guest_email,
-        start,
-        end,
-        meet_url
-      } = body as {
-        title: string
-        guest_name: string
-        guest_email: string
-        start: string
-        end: string
-        meet_url?: string
-      }
+  const existing = await c.env.DB
+    .prepare("SELECT id FROM bookings WHERE id = ? AND user_id = ?")
+    .bind(id, userId)
+    .first()
 
-      if (!id) {
-        return c.json({ error: "id required" }, 400)
-      }
+  if (!existing) return c.json({ error: "Not found" }, 404)
 
-      await c.env.DB.prepare(`
-        UPDATE bookings
-        SET
-          title = ?,
-          guest_name = ?,
-          guest_email = ?,
-          start = ?,
-          end = ?,
-          meet_url = ?
-        WHERE id = ?
-      `)
-        .bind(title, guest_name, guest_email, start, end, meet_url ?? null, id)
-        .run()
+  await c.env.DB
+    .prepare(`
+      UPDATE bookings
+      SET title = ?, guest_name = ?, guest_email = ?, start = ?, end = ?, meet_url = ?
+      WHERE id = ? AND user_id = ?
+    `)
+    .bind(title, guest_name ?? null, guest_email ?? null, start, end, meet_url ?? null, id, userId)
+    .run()
 
-      return c.json({ success: true })
+  return c.json({ success: true })
+}
 
-    } catch (err) {
-      console.error(err)
-      return c.json({ error: "update failed" }, 500)
-    }
-  }
+export const deleteBooking = async (c: AppContext) => {
+  const userId = getUserId(c)
+  if (!userId) return c.json({ error: "Unauthorized" }, 401)
 
-  export const deleteBooking = async (c: Context<{ Bindings: CloudflareBindings }>) => {
-    try {
-      const id = c.req.param("id")
+  const id = c.req.param("id")
 
-      if (!id) {
-        return c.json({ error: "id required" }, 400)
-      }
+  const existing = await c.env.DB
+    .prepare("SELECT id FROM bookings WHERE id = ? AND user_id = ?")
+    .bind(id, userId)
+    .first()
 
-      await c.env.DB.prepare(`
-        DELETE FROM bookings
-        WHERE id = ?
-      `)
-        .bind(id)
-        .run()
+  if (!existing) return c.json({ error: "Not found" }, 404)
 
-      return c.json({ success: true })
+  await c.env.DB
+    .prepare("DELETE FROM bookings WHERE id = ? AND user_id = ?")
+    .bind(id, userId)
+    .run()
 
-    } catch (err) {
-      console.error(err)
-      return c.json({ error: "delete failed" }, 500)
-    }
-  }
+  return c.json({ success: true })
+}
