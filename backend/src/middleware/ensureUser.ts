@@ -1,9 +1,10 @@
-import { Context, Next } from "hono"
+import { Next } from "hono"
+import { AppContext } from "../types/type"
 
-export const ensureUser = async (c: Context<{ Bindings: CloudflareBindings }>, next: Next) => {
+export const ensureUser = async (c: AppContext, next: Next) => {
   const auth = c.get("authUser")
   const user = auth?.token
-
+  
   if (!user) {
     return c.json({ error: "Unauthorized" }, 401)
   }
