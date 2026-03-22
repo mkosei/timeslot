@@ -125,7 +125,7 @@ export default function BookingPage({
 
   return (
     <div className="min-h-screen bg-zinc-900 text-white flex justify-center items-center p-6">
-      <div className="bg-zinc-800 rounded-2xl shadow-xl w-full max-w-4xl p-6">
+      <div className="bg-zinc-900 rounded-2xl shadow-xl w-full max-w-4xl p-6">
 
         {/* タイトル */}
         <h1 className="text-xl font-semibold mb-6">

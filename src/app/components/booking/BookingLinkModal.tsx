@@ -86,11 +86,11 @@ const handleCreate = async () => {
 
   return (
     <div
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+      className="fixed inset-0 bg-white/10 flex items-center justify-center z-50"
       onClick={onClose}
     >
       <div
-        className="w-[480px] bg-zinc-800 border border-zinc-700 rounded-2xl shadow-2xl"
+        className="w-[480px] bg-zinc-900 border border-zinc-700 rounded-2xl shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* header */}
@@ -114,7 +114,7 @@ const handleCreate = async () => {
                 setErrors((prev) => ({ ...prev, title: undefined }))
               }}
               placeholder="ミーティング"
-              className="w-full mt-1 bg-zinc-800 p-2 rounded border border-zinc-600 focus:outline-none"
+              className="w-full mt-1 bg-zinc-900 p-2 rounded border border-zinc-600 focus:outline-none"
             />
             {errors.title && (
               <p className="text-zinc-400 text-xs mt-1">{errors.title}</p>
@@ -132,7 +132,7 @@ const handleCreate = async () => {
                 setDuration(Number(e.target.value))
                 setErrors((prev) => ({ ...prev, duration: undefined }))
               }}
-              className="w-full mt-1 bg-zinc-800 p-2 rounded border border-zinc-600 focus:outline-none"
+              className="w-full mt-1 bg-zinc-900 p-2 rounded border border-zinc-600 focus:outline-none"
             >
               <option value={15}>15分</option>
               <option value={30}>30分</option>
@@ -154,7 +154,7 @@ const handleCreate = async () => {
             <select
               value={days}
               onChange={(e) => setDays(Number(e.target.value))}
-              className="w-full mt-1 bg-zinc-800 p-2 rounded border border-zinc-600 focus:outline-none"
+              className="w-full mt-1 bg-zinc-900 p-2 rounded border border-zinc-600 focus:outline-none"
             >
               <option value={7}>7日</option>
               <option value={14}>14日</option>
@@ -180,7 +180,7 @@ const handleCreate = async () => {
                   setStartTime(e.target.value)
                   setErrors((prev) => ({ ...prev, time: undefined }))
                 }}
-                className="w-full mt-1 bg-zinc-800 p-2 rounded border border-zinc-600 focus:outline-none"
+                className="w-full mt-1 bg-zinc-900 p-2 rounded border border-zinc-600 focus:outline-none"
               />
             {errors.time && (
               <p className="text-zinc-400 text-xs mt-1">{errors.time}</p>
@@ -198,7 +198,7 @@ const handleCreate = async () => {
                   setEndTime(e.target.value)
                   setErrors((prev) => ({ ...prev, time: undefined }))
                 }}
-                className="w-full mt-1 bg-zinc-800 p-2 rounded border border-zinc-600 focus:outline-none"
+                className="w-full mt-1 bg-zinc-900 p-2 rounded border border-zinc-600 focus:outline-none"
               />
             </div>
           </div>
@@ -215,7 +215,7 @@ const handleCreate = async () => {
                 setErrors((prev) => ({ ...prev, meetUrl: undefined }))
               }}
               placeholder="https://..."
-              className="w-full mt-1 bg-zinc-800 p-2 rounded border border-zinc-600 focus:outline-none"
+              className="w-full mt-1 bg-zinc-900 p-2 rounded border border-zinc-600 focus:outline-none"
             />
             {errors.meetUrl && (
             <p className="text-zinc-400 text-xs mt-1">{errors.meetUrl}</p>
@@ -224,7 +224,7 @@ const handleCreate = async () => {
 
           {/* result */}
           {link && (
-            <div className="bg-zinc-800 p-3 rounded flex gap-2 items-center">
+            <div className="bg-zinc-900 p-3 rounded flex gap-2 items-center">
               <input
                 value={link}
                 readOnly

@@ -6,32 +6,32 @@ type ColorStyle = {
 
 const colorMap: ColorStyle[] = [
   {
-    bg: "bg-blue-500/15",
+    bg: "bg-blue-500/25",
     text: "text-blue-300",
     border: "border-blue-500"
   },
   {
-    bg: "bg-green-500/15",
+    bg: "bg-green-500/25",
     text: "text-green-300",
     border: "border-green-500"
   },
   {
-    bg: "bg-purple-500/15",
+    bg: "bg-purple-500/25",
     text: "text-purple-300",
     border: "border-purple-500"
   },
   {
-    bg: "bg-pink-500/15",
+    bg: "bg-pink-500/25",
     text: "text-pink-300",
     border: "border-pink-500"
   },
   {
-    bg: "bg-yellow-500/15",
+    bg: "bg-yellow-500/25",
     text: "text-yellow-300",
     border: "border-yellow-500"
   },
   {
-    bg: "bg-indigo-500/15",
+    bg: "bg-indigo-500/25",
     text: "text-indigo-300",
     border: "border-indigo-500"
   }
