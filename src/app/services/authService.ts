@@ -9,9 +9,8 @@ export async function fetchSession(): Promise<Session>  {
   return res.json()
 }
 
-export const login = async () => {
-  const callbackUrl = encodeURIComponent(APP_URL + "/schedule")
-  window.location.href = `${API_URL}/api/auth/signin/google?callbackUrl=${callbackUrl}`
+export const login = () => {
+  window.location.href = `${API_URL}/auth/login`
 }
 
 export const logout = () => {
