@@ -8,7 +8,7 @@ import { bookingLinkSchema, createBookingFromLinkSchema } from "../lib/validator
 async function getBookingLink(c: AppContext, slug: string): Promise<BookingLink | null> {
   return c.env.DB
     .prepare(`
-      SELECT user_id, duration, days_ahead, meet_url, title, start_time, end_time
+      SELECT user_id, duration, days_ahead, meet_url, title, start_time, end_time, is_used
       FROM booking_links WHERE slug = ?
     `)
     .bind(slug)
@@ -55,7 +55,7 @@ export const createBookingLink = async (c: AppContext) => {
   const { title, duration, meet_url, days_ahead, start_time, end_time } = result.output
 
   const slug = nanoid(10)
-
+  
   await c.env.DB
     .prepare(`
       INSERT INTO booking_links
@@ -111,6 +111,9 @@ export const createBookingFromLink = async (c: AppContext) => {
 
   const link = await getBookingLink(c, slug)
   if (!link) return c.json({ error: "link not found" }, 404)
+  console.log("link.user_id:", link.user_id)
+    
+  if (link.is_used) return c.json({ error: "link already used" }, 410)
 
   if (dayjs(end).diff(dayjs(start), "minute") !== link.duration) {
     return c.json({ error: "invalid duration" }, 400)
@@ -127,13 +130,16 @@ export const createBookingFromLink = async (c: AppContext) => {
 
   if (conflict) return c.json({ error: "time not available" }, 409)
 
-  await c.env.DB
-    .prepare(`
+  await c.env.DB.batch([
+    c.env.DB.prepare(`
       INSERT INTO bookings (user_id, title, guest_name, guest_email, start, end, meet_url)
       VALUES (?, ?, ?, ?, ?, ?, ?)
-    `)
-    .bind(link.user_id, link.title, guest_name, guest_email, start, end, link.meet_url ?? null)
-    .run()
+    `).bind(link.user_id, link.title, guest_name, guest_email, start, end, link.meet_url ?? null),
+
+    c.env.DB.prepare(`
+      UPDATE booking_links SET is_used = 1 WHERE slug = ?
+    `).bind(slug),
+  ])
 
   return c.json({ success: true }, 201)
 }

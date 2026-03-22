@@ -4,12 +4,12 @@ import { AppContext } from "../types/type"
 export const ensureUser = async (c: AppContext, next: Next) => {
   const auth = c.get("authUser")
   const user = auth?.token
-  
+
   if (!user) {
     return c.json({ error: "Unauthorized" }, 401)
   }
 
-  const userId = user.sub
+  const userId = `g_${String(user.sub)}`
   const email = user.email
   const name = user.name
 

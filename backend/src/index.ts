@@ -36,9 +36,9 @@ app.use(
       }),
     ],
     callbacks: {
-      jwt({ token, account, profile }) {
-        if (account && profile?.sub) {
-          token.sub = profile.sub
+      jwt({ token, account }) {
+        if (account?.providerAccountId) {
+          token.sub = `g_${account.providerAccountId}`
         }
         return token
       },
