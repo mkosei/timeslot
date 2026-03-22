@@ -29,6 +29,21 @@ app.use(
     secret: c.env.AUTH_SECRET,
     trustHost: true,
     basePath: '/api/auth',
+    useSecureCookies: true,
+    cookies: {
+      csrfToken: {
+        options: {
+          sameSite: "none",
+          secure: true,
+        }
+      },
+      sessionToken: {
+        options: {
+          sameSite: "none",
+          secure: true,
+        }
+      }
+    },
     providers: [
       Google({
         clientId: c.env.AUTH_GOOGLE_ID,
