@@ -1,8 +1,6 @@
 import { auth } from "@/app/auth"
 import { NextRequest } from "next/server"
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL!
-const AUTH_SECRET = process.env.AUTH_SECRET!
+import { API_URL, INTERNAL_SECRET } from "@/app/lib/config"
 
 // 認証不要なパスのパターン
 const PUBLIC_PATHS = [
@@ -21,7 +19,7 @@ async function handler(req: NextRequest) {
 
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
-    'x-internal-secret': AUTH_SECRET,
+    'x-internal-secret': INTERNAL_SECRET,
   }
 
   if (!isPublic) {
