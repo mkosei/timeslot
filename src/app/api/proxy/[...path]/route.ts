@@ -1,6 +1,8 @@
 import { auth } from "@/app/auth"
 import { NextRequest } from "next/server"
-import { API_URL, HONO_API_URL, INTERNAL_SECRET } from "@/app/lib/config"
+import { HONO_API_URL, INTERNAL_SECRET } from "@/app/lib/config"
+
+console.log('INTERNAL_SECRET:', INTERNAL_SECRET)
 
 // 認証不要なパスのパターン
 const PUBLIC_PATHS = [
