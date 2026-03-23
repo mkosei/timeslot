@@ -2,7 +2,6 @@ import { API_URL } from "@/app/lib/config"
 import { BookingFromLink, CreateLinkResponse } from "@/app/types/type"
 import { CreateLinkInput, BookingPageData } from "@/app/types/type"
 import { getAuthHeaders } from "@/app/lib/auth-headers"
-import { Session } from "next-auth"
 
 export async function getBookingSlots(slug: string) {
   const res = await fetch(`${API_URL}/api/bookings/${slug}`)
@@ -10,10 +9,10 @@ export async function getBookingSlots(slug: string) {
   return res.json() as Promise<BookingPageData>
 }
 
-export async function createBookingLink(session: Session | null, input: CreateLinkInput): Promise<CreateLinkResponse> {
+export async function createBookingLink(input: CreateLinkInput): Promise<CreateLinkResponse> {
   const res = await fetch(`${API_URL}/api/bookings/links`, {
     method: "POST",
-    headers: getAuthHeaders(session),
+    headers: getAuthHeaders(),
     body: JSON.stringify(input),
   })
   if (!res.ok) throw new Error("作成失敗")

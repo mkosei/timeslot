@@ -1,31 +1,29 @@
 import type { BookingResponse, BookingPayload, UpdateBookingInput } from "../types/type"
 import { API_URL } from "../lib/config"
 import { getAuthHeaders } from "../lib/auth-headers"
-import { Session } from "next-auth"
 
-export async function fetchBookings(session: Session | null): Promise<BookingResponse[]> {
-  console.log("fetchBookings called, session:", session?.user?.id)
+export async function fetchBookings(): Promise<BookingResponse[]> {
   const res = await fetch(`${API_URL}/api/bookings`, {
-    headers: getAuthHeaders(session),
+    headers: getAuthHeaders(),
   })
   if (!res.ok) throw new Error("予約取得失敗")
   return res.json()
 }
 
-export async function createBooking(session: Session | null, payload: BookingPayload) {
+export async function createBooking(payload: BookingPayload) {
   const res = await fetch(`${API_URL}/api/bookings`, {
     method: "POST",
-    headers: getAuthHeaders(session),
+    headers: getAuthHeaders(),
     body: JSON.stringify(payload),
   })
   if (!res.ok) throw new Error("予約に失敗しました")
   return res.json()
 }
 
-export async function updateBooking(session: Session | null, data: UpdateBookingInput) {
+export async function updateBooking(data: UpdateBookingInput) {
   const res = await fetch(`${API_URL}/api/bookings/${data.id}`, {
     method: "PUT",
-    headers: getAuthHeaders(session),
+    headers: getAuthHeaders(),
     body: JSON.stringify({
       title: data.title,
       guest_name: data.guest_name,
@@ -39,10 +37,10 @@ export async function updateBooking(session: Session | null, data: UpdateBooking
   return await res.json().catch(() => null)
 }
 
-export async function deleteBooking(session: Session | null, id: number) {
+export async function deleteBooking(id: number) {
   const res = await fetch(`${API_URL}/api/bookings/${id}`, {
     method: "DELETE",
-    headers: getAuthHeaders(session),
+    headers: getAuthHeaders(),
   })
   if (!res.ok) throw new Error("予約の削除に失敗しました")
   return res.json()

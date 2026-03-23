@@ -41,7 +41,7 @@ export default function SchedulePage() {
   const load = useCallback(async () => {
     if (!session?.user) return
     try {
-      const bookingsData = await fetchBookings(session)
+      const bookingsData = await fetchBookings()
       setEvents(formatBookings(bookingsData))
     } catch (err) {
       console.error(err)
@@ -113,15 +113,13 @@ export default function SchedulePage() {
         open={bookingModalOpen}
         onClose={() => setBookingModalOpen(false)}
         onBooked={() => { setBookingModalOpen(false); load() }}
-        session={session}
       />
-      <CreateLinkModal open={linkModalOpen} onClose={() => setLinkModalOpen(false)} session={session}/>
+      <CreateLinkModal open={linkModalOpen} onClose={() => setLinkModalOpen(false)} />
       <EventModal
         event={selectedEvent}
         open={!!selectedEvent}
         onClose={() => setSelectedEvent(null)}
         onUpdated={load}
-        session={session}
       />
       <LoginModal open={!loading && !session?.user} />
     </div>

@@ -9,14 +9,12 @@ import { updateBooking } from "@/app/services/bookingService"
 import * as v from "valibot"
 import { updateBookingSchema } from "@/app/lib/validators/updateBooking"
 import { formatErrors } from "@/app/lib/validators/format"
-import { Session } from "next-auth"
 
 type Props = {
   event: Event | null
   open: boolean
   onClose: () => void
   onUpdated: () => void
-  session: Session | null
 }
 
 export default function EventModal({
@@ -24,7 +22,6 @@ export default function EventModal({
   open,
   onClose,
   onUpdated,
-  session
 }: Props) {
 
   const [editMode, setEditMode] = useState(false)
@@ -89,7 +86,7 @@ export default function EventModal({
       const start = dayjs(`${data.date}T${data.start}`).toISOString()
       const end = dayjs(`${data.date}T${data.end}`).toISOString()
 
-      await updateBooking(session, {
+      await updateBooking({
         id: event.id,
         title: data.title,
         guest_name: data.guest_name,
@@ -110,7 +107,7 @@ export default function EventModal({
     if (!confirm("この予約を削除しますか？")) return
 
     try {
-      await deleteBooking(session, event.id)
+      await deleteBooking(event.id)
 
       onUpdated()
       onClose()
