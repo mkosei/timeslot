@@ -1,6 +1,6 @@
 import { auth } from "@/app/auth"
 import { NextRequest } from "next/server"
-import { API_URL, INTERNAL_SECRET } from "@/app/lib/config"
+import { API_URL, HONO_API_URL, INTERNAL_SECRET } from "@/app/lib/config"
 
 // 認証不要なパスのパターン
 const PUBLIC_PATHS = [
@@ -32,7 +32,7 @@ async function handler(req: NextRequest) {
     headers['x-user-email'] = user.email ?? ''
   }
 
-  const res = await fetch(`${API_URL}${path}${search}`, {
+  const res = await fetch(`${HONO_API_URL}${path}${search}`, {
     method: req.method,
     headers,
     body: req.method !== 'GET' ? req.body : undefined,
