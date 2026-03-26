@@ -2,16 +2,14 @@ import { auth } from "@/app/auth"
 import { NextRequest } from "next/server"
 import { HONO_API_URL, INTERNAL_SECRET } from "@/app/lib/config"
 
-console.log('INTERNAL_SECRET:', INTERNAL_SECRET)
-
-// 認証不要なパスのパターン
 const PUBLIC_PATHS = [
-  /^\/api\/bookings\/[^/]+$/,  // GET /:slug, POST /:slug
+  { method: 'GET', pattern: /^\/api\/bookings\/(?!links)[^/]+$/ },
+  { method: 'POST', pattern: /^\/api\/bookings\/(?!links)[^/]+$/ },
 ]
 
+
 function isPublicPath(method: string, path: string) {
-  return PUBLIC_PATHS.some(pattern => pattern.test(path)) && 
-    (method === 'GET' || method === 'POST')
+  return PUBLIC_PATHS.some(p => p.method === method && p.pattern.test(path))
 }
 
 async function handler(req: NextRequest) {
