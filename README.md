@@ -30,7 +30,7 @@ A simple, open-source scheduling tool. Share your availability via a booking lin
 
 ### Prerequisites
 
-- Node.js 18+
+- Node.js 18+ (developed on v23)
 - A [Turso](https://turso.tech) account (free tier available)
 - A Google OAuth app ([Google Cloud Console](https://console.cloud.google.com))
 - A [Vercel](https://vercel.com) account (or any Node.js hosting)
@@ -178,7 +178,7 @@ Contributions are welcome! Feel free to open an issue or submit a pull request.
 
 ### 必要なもの
 
-- Node.js 18以上
+- Node.js 18+ (developed on v23)
 - [Turso](https://turso.tech) アカウント（無料枠あり）
 - Google OAuth アプリ（[Google Cloud Console](https://console.cloud.google.com)）
 - [Vercel](https://vercel.com) アカウント（またはNode.js対応のホスティング）
