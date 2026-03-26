@@ -1,11 +1,10 @@
 import type { BookingResponse, BookingPayload, UpdateBookingInput } from "../types/type"
-import { API_URL } from "../lib/config"
-import { getAuthHeaders } from "../lib/auth-headers"
+import { API_URL } from "@/app/lib/config"
+import { headers } from "@/app/lib/config"
+
 
 export async function fetchBookings(): Promise<BookingResponse[]> {
-  const res = await fetch(`${API_URL}/api/bookings`, {
-    headers: getAuthHeaders(),
-  })
+  const res = await fetch(`${API_URL}/api/bookings`)
   if (!res.ok) throw new Error("予約取得失敗")
   return res.json()
 }
@@ -13,7 +12,7 @@ export async function fetchBookings(): Promise<BookingResponse[]> {
 export async function createBooking(payload: BookingPayload) {
   const res = await fetch(`${API_URL}/api/bookings`, {
     method: "POST",
-    headers: getAuthHeaders(),
+    headers,
     body: JSON.stringify(payload),
   })
   if (!res.ok) throw new Error("予約に失敗しました")
@@ -23,7 +22,7 @@ export async function createBooking(payload: BookingPayload) {
 export async function updateBooking(data: UpdateBookingInput) {
   const res = await fetch(`${API_URL}/api/bookings/${data.id}`, {
     method: "PUT",
-    headers: getAuthHeaders(),
+    headers,
     body: JSON.stringify({
       title: data.title,
       guest_name: data.guest_name,
@@ -40,7 +39,6 @@ export async function updateBooking(data: UpdateBookingInput) {
 export async function deleteBooking(id: number) {
   const res = await fetch(`${API_URL}/api/bookings/${id}`, {
     method: "DELETE",
-    headers: getAuthHeaders(),
   })
   if (!res.ok) throw new Error("予約の削除に失敗しました")
   return res.json()

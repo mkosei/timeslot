@@ -1,7 +1,7 @@
 import { API_URL } from "@/app/lib/config"
 import { BookingFromLink, CreateLinkResponse } from "@/app/types/type"
 import { CreateLinkInput, BookingPageData } from "@/app/types/type"
-import { getAuthHeaders } from "@/app/lib/auth-headers"
+import { headers } from "@/app/lib/config"
 
 export async function getBookingSlots(slug: string) {
   const res = await fetch(`${API_URL}/api/bookings/${slug}`)
@@ -12,7 +12,7 @@ export async function getBookingSlots(slug: string) {
 export async function createBookingLink(input: CreateLinkInput): Promise<CreateLinkResponse> {
   const res = await fetch(`${API_URL}/api/bookings/links`, {
     method: "POST",
-    headers: getAuthHeaders(),
+    headers,
     body: JSON.stringify(input),
   })
   if (!res.ok) throw new Error("作成失敗")
@@ -22,7 +22,7 @@ export async function createBookingLink(input: CreateLinkInput): Promise<CreateL
 export const createBookingFromLink = async (slug: string, payload: BookingFromLink) => {
   const res = await fetch(`${API_URL}/api/bookings/${slug}`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers,
     body: JSON.stringify(payload),
   })
   if (!res.ok) throw new Error("予約失敗")
