@@ -14,19 +14,25 @@ export default function MonthView({ events, onSelectDate }: Props) {
 
   return (
     <div className="grid grid-cols-7 gap-0.5">
-      {days.map((day, i) => (
-        <div
-          key={i}
-          className="relative h-32 border-t border-zinc-700 p-2 text-xs bg-zinc-900 cursor-pointer"
-          onClick={() => onSelectDate(day)}
-        >
-          {/* 日付 */}
-          <div className="text-zinc-400">{day.date()}</div>
+      {days.map((day, i) => {
+        const dayEvents = events.filter((e) =>
+          dayjs(e.date).isSame(day, "day")
+        )
 
-          {/* その日のイベント */}
-          {events
-            .filter((e) => dayjs(e.date).isSame(day, "day"))
-            .map((e) => {
+        const visibleEvents = dayEvents.slice(0, 4)
+        const hiddenCount = dayEvents.length - visibleEvents.length
+
+        return (
+          <div
+            key={i}
+            className="relative h-32 border-t border-zinc-700 p-2 text-xs bg-zinc-900 cursor-pointer"
+            onClick={() => onSelectDate(day)}
+          >
+            {/* 日付 */}
+            <div className="text-zinc-400">{day.date()}</div>
+
+            {/* 表示するイベント（最大3件） */}
+            {visibleEvents.map((e) => {
               const color = getEventColor(e.guest_name || e.title)
 
               return (
@@ -50,8 +56,16 @@ export default function MonthView({ events, onSelectDate }: Props) {
                 </div>
               )
             })}
-        </div>
-      ))}
+
+            {/* +more表示 */}
+            {hiddenCount > 0 && (
+              <div className="mt-1 text-[10px] text-blue-400">
+                +{hiddenCount} more
+              </div>
+            )}
+          </div>
+        )
+      })}
     </div>
   )
 }
