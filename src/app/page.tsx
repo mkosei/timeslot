@@ -111,7 +111,14 @@ export default function LandingPage() {
       </div>
 
       <div className="text-center text-sm text-white/30 mb-16">
-        すでに <span className="text-white/60 font-medium">1,000+</span> 人が使っています
+      <a 
+        href="https://github.com/mkosei/timeslot" 
+        target="_blank" 
+        rel="noopener noreferrer"
+        className="text-white/60 font-medium hover:text-white transition-colors"
+      >
+      <span className="text-white/60 font-medium">Githubリポジトリはこちらから - コントリビューション大歓迎</span>
+      </a>  
       </div>
 
       {/* Features */}
