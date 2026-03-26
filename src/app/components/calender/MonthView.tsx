@@ -56,13 +56,6 @@ export default function MonthView({ events, onSelectDate }: Props) {
                 </div>
               )
             })}
-
-            {/* +more表示 */}
-            {hiddenCount > 0 && (
-              <div className="mt-1 text-[10px] text-blue-400">
-                +{hiddenCount}
-              </div>
-            )}
           </div>
         )
       })}

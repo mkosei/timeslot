@@ -33,7 +33,7 @@ export async function POST(req: Request) {
   })
 
   return Response.json({
-    id: result.lastInsertRowid,
+    id: result.lastInsertRowid!.toString(),
     user_id: userId,
     title,
     guest_name,

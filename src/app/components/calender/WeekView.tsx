@@ -3,6 +3,8 @@
 import { Event } from "@/app/types/type"
 import dayjs, { Dayjs } from "dayjs"
 import { getEventColor } from "@/app/lib/color"
+import { useState } from "react"
+import TooltipPortal from "./Tooltip"
 
 const hours = Array.from({ length: 24 }, (_, i) => (i + 8) % 24)
 
@@ -18,20 +20,20 @@ export default function WeekView({
   onSelectEvent,
 }: Props) {
 
+  const [rect, setRect] = useState<DOMRect | null>(null)
+  const [hovered, setHovered] = useState<Event | null>(null)
+
   const week = Array.from({ length: 7 }, (_, i) =>
     baseDate.startOf("week").add(i, "day")
   )
 
   return (
     <div className="overflow-x-auto">
-      {/* Week Header */}
+      {/* Header */}
       <div className="grid grid-cols-[70px_repeat(7,1fr)] bg-zinc-900">
         <div />
         {week.map((day, i) => (
-          <div
-            key={i}
-            className="py-3 text-center border-l border-zinc-700"
-          >
+          <div key={i} className="py-3 text-center border-l border-zinc-700">
             <div className="text-sm font-semibold text-zinc-200">
               {day.format("ddd")}
             </div>
@@ -45,7 +47,7 @@ export default function WeekView({
       {/* Grid */}
       <div className="grid grid-cols-[70px_repeat(7,1fr)]">
 
-        {/* Time column */}
+        {/* Time */}
         <div className="border-r border-zinc-700 bg-zinc-850">
           {hours.map((hour) => (
             <div
@@ -57,63 +59,89 @@ export default function WeekView({
           ))}
         </div>
 
-        {/* Day columns */}
+        {/* Days */}
         {week.map((day, dayIndex) => (
-          <div
-            key={dayIndex}
-            className="relative border-l border-zinc-700"
-          >
+          <div key={dayIndex} className="relative border-l border-zinc-700">
 
+            {/* grid */}
             {hours.map((hour) => (
               <div key={hour} className="h-20" />
             ))}
 
-{events
-  .filter((e) => dayjs(e.date).isSame(day, "day"))
-  .map((event) => {
+            {/* events */}
+            {events
+              .filter((e) => dayjs(e.date).isSame(day, "day"))
+              .map((event) => {
 
-    const color = getEventColor(event.guest_name || event.title)
+                const color = getEventColor(event.guest_name || event.title)
 
-    const startHour = parseInt(event.start.split(":")[0])
-    const startMin = parseInt(event.start.split(":")[1])
-    const endHour = parseInt(event.end.split(":")[0])
-    const endMin = parseInt(event.end.split(":")[1])
+                const [startHour, startMin] = event.start.split(":").map(Number)
+                const [endHour, endMin] = event.end.split(":").map(Number)
 
-    const adjustedStart = startHour >= 8 ? startHour - 8 : startHour + 16
-    const top = adjustedStart * 80 + (startMin / 60) * 80
+                const adjustedStart =
+                  startHour >= 8 ? startHour - 8 : startHour + 16
 
-    const duration = ((endHour - startHour) * 60 + (endMin - startMin))
-    const height = (duration / 60) * 80
+                const top = adjustedStart * 80 + (startMin / 60) * 80
 
-    return (
-      <div
-        key={event.id}
-        className={`
-          group absolute left-2 right-2 rounded-xl p-2 shadow transition cursor-pointer
-          border-l-4 ${color.bg} ${color.text} ${color.border}
-          hover:opacity-80
-        `}
-        style={{ top, height }}
-        onClick={() => onSelectEvent(event)}
-      >
-        <div className="text-sm font-semibold truncate">
-          {event.title}
-        </div>
+                const duration =
+                  (endHour - startHour) * 60 + (endMin - startMin)
 
-        {/* Tooltip */}
-        <div className="pointer-events-none absolute left-1/2 top-full z-20 mt-2 w-48 -translate-x-1/2 rounded-lg bg-zinc-900 p-3 text-xs opacity-0 shadow-xl transition group-hover:opacity-100 border border-zinc-700">
-          <div className="font-semibold">{event.title}</div>
-          <div className="text-zinc-400">{event.guest_name}</div>
-          <div className="text-zinc-500">
-            {event.start} - {event.end}
-          </div>
-        </div>
-      </div>
-    )
-  })}
+                const height = (duration / 60) * 80
+
+                return (
+                  <div
+                    key={event.id}
+                    className={`
+                      absolute left-2 right-2 rounded-xl p-2 shadow transition cursor-pointer
+                      border-l-4 ${color.bg} ${color.text} ${color.border}
+                      hover:opacity-80
+                    `}
+                    style={{ top, height }}
+                    onClick={() => onSelectEvent(event)}
+                    onMouseEnter={(e) => {
+                      setRect(e.currentTarget.getBoundingClientRect())
+                      setHovered(event)
+                    }}
+                    onMouseLeave={() => {
+                      setRect(null)
+                      setHovered(null)
+                    }}
+                  >
+                    <div className="text-sm font-semibold truncate">
+                      {event.title}
+                    </div>
+                  </div>
+                )
+              })}
           </div>
         ))}
       </div>
+
+      {/* Tooltip */}
+      <TooltipPortal rect={rect}>
+        {hovered && (() => {
+          const color = getEventColor(hovered.guest_name || hovered.title)
+
+          return (
+            <>
+              {/* title */}
+              <div className={`font-medium text-xs leading-tight ${color.text}`}>
+                {hovered.title}
+              </div>
+
+              {/* guest */}
+              <div className={`mt-1 text-[10px] border-l-2 pl-2 ${color.border}`}>
+                {hovered.guest_name}
+              </div>
+
+              {/* time */}
+              <div className="mt-1 text-[10px] text-zinc-400 border-t border-zinc-800 pt-1">
+                {hovered.start} - {hovered.end}
+              </div>
+            </>
+          )
+        })()}
+      </TooltipPortal>
     </div>
   )
 }
