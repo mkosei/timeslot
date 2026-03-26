@@ -4,8 +4,6 @@
 
 A simple, open-source scheduling tool. Share your availability via a booking link and let others book time with you — no back-and-forth emails needed.
 
-**[Live Demo](https://timeslot-kohl.vercel.app)**
-
 ---
 
 ## Features
@@ -151,8 +149,6 @@ Contributions are welcome! Feel free to open an issue or submit a pull request.
 # 日本語
 
 オープンソースのシンプルなスケジュール管理ツールです。予約リンクを共有して、相手に空き時間を選んでもらえます。
-
-**[デモ](https://timeslot-kohl.vercel.app)**
 
 ---
 
