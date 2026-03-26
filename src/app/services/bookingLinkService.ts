@@ -4,7 +4,7 @@ import { CreateLinkInput, BookingPageData } from "@/app/types/type"
 import { headers } from "@/app/lib/config"
 
 export async function getBookingSlots(slug: string) {
-  const res = await fetch(`${API_URL}/api/bookings/${slug}`)
+  const res = await fetch(`${API_URL}/api/bookings/links/${slug}`)
   if (!res.ok) throw new Error("スロット取得失敗")
   return res.json() as Promise<BookingPageData>
 }
@@ -20,7 +20,7 @@ export async function createBookingLink(input: CreateLinkInput): Promise<CreateL
 }
 
 export const createBookingFromLink = async (slug: string, payload: BookingFromLink) => {
-  const res = await fetch(`${API_URL}/api/bookings/${slug}`, {
+  const res = await fetch(`${API_URL}/api/bookings/links/${slug}`, {
     method: "POST",
     headers,
     body: JSON.stringify(payload),
