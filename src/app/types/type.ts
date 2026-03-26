@@ -1,8 +1,7 @@
-export type Session = {
-  user?: {
-    name?: string
-    email?: string
-  }
+export type UserInfo = {
+  id: string
+  name: string
+  email: string
 }
 
 export type BookingResponse = {
@@ -73,6 +72,22 @@ export type BookingPageData = {
   }[]
 }
 
+export type BookingLink = {
+  user_id: string
+  duration: number
+  days_ahead: number
+  meet_url: string | null
+  title: string
+  start_time: string
+  end_time: string
+  is_used: number
+}
+
+export type BookingSlot = {
+  start: string
+  end: string
+}
+
 export type CreateLinkInput = {
   title: string
   duration: number
@@ -89,4 +104,3 @@ export type BookingFromLink = {
   guest_name: string,
   guest_email: string
 }
-
