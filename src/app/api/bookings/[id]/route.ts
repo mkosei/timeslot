@@ -3,7 +3,7 @@ import { db } from "@/app/lib/db"
 import * as v from "valibot"
 import { bookingSchema } from "@/app/lib/validators/api"
 
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth()
   if (!session?.user?.id) return Response.json({ error: "Unauthorized" }, { status: 401 })
 
@@ -30,7 +30,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   return Response.json({ success: true })
 }
 
-export async function DELETE(_req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth()
   if (!session?.user?.id) return Response.json({ error: "Unauthorized" }, { status: 401 })
 
