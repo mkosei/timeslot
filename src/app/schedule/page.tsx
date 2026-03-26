@@ -57,7 +57,7 @@ export default function SchedulePage() {
       <div className="mx-auto max-w-7xl rounded-2xl border border-zinc-700 bg-zinc-900 shadow-xl">
         <div className="flex items-center justify-between border-b border-zinc-700 px-6 py-4">
           <div className="flex flex-col gap-1">
-            <h1 className="text-lg font-semibold">TimeSlot</h1>
+            <h1 className="text-lg font-semibold">Time<span className="text-violet-400">Slot</span></h1>
             <div className="flex items-center gap-2 text-sm text-zinc-400">
               <button
                 onClick={() => setSelectedDate(dayjs())}
